@@ -1,0 +1,1002 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FuuRoo // ARCADE OS</title>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-void: #0b0714;
+            --grid-line: #18122b;
+            --panel-bg: #110c21;
+            --border-purple: #482a7a;
+            --neon-cyan: #00f3ff;
+            --neon-pink: #ff007f;
+            --neon-yellow: #ffea00;
+            --text-muted: #7b7396;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            background-color: var(--bg-void);
+            background-image: 
+                linear-gradient(to right, var(--grid-line) 1px, transparent 1px),
+                linear-gradient(to bottom, var(--grid-line) 1px, transparent 1px);
+            background-size: 28px 28px;
+            color: #ffffff;
+            font-family: 'Press Start 2P', monospace;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* TOP ARCADE OS HEADER BAR */
+        .top-bar {
+            width: 100%;
+            background: #06040a;
+            border-bottom: 2px solid #8a2be2;
+            padding: 12px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.8);
+        }
+
+        .brand-left {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .logo-square {
+            width: 38px;
+            height: 38px;
+            background: #e60073;
+            border: 2px solid #ffffff;
+            color: var(--neon-yellow);
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 0 10px rgba(255, 0, 127, 0.5);
+        }
+
+        .brand-titles h1 {
+            color: var(--neon-cyan);
+            font-size: 14px;
+            text-shadow: 0 0 8px rgba(0, 243, 255, 0.6);
+            margin-bottom: 5px;
+        }
+
+        .brand-titles p {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 12px;
+            color: #9e8cc7;
+            letter-spacing: 1px;
+        }
+
+        .status-right {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .user-pill {
+            background: #170d2e;
+            border: 1px solid #6b3fa0;
+            border-radius: 4px;
+            padding: 8px 14px;
+            font-size: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #d4cce8;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #4e6e6e;
+            display: inline-block;
+        }
+
+        .status-dot.online {
+            background: #00ff88;
+            box-shadow: 0 0 6px #00ff88;
+        }
+
+        .sfx-btn {
+            background: #8a00e6;
+            border: 1px solid #d580ff;
+            color: #ffffff;
+            font-family: 'Press Start 2P', monospace;
+            font-size: 9px;
+            padding: 8px 12px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .sfx-btn:hover { filter: brightness(1.15); }
+
+        .fps-counter {
+            color: var(--neon-pink);
+            font-size: 10px;
+        }
+
+        .retro-icon {
+            width: 18px;
+            height: 18px;
+            flex-shrink: 0;
+            display: inline-block;
+        }
+
+        /* MAIN WORKSPACE CONTAINER */
+        .workspace {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            padding: 32px 24px;
+            width: 100%;
+        }
+
+        .layout {
+            display: flex;
+            flex-direction: row;
+            align-items: flex-start;
+            gap: 28px;
+            width: 100%;
+            max-width: 1080px;
+        }
+
+        /* LEFT SIDEBAR */
+        .sidebar {
+            width: 280px;
+            background: var(--panel-bg);
+            border: 2px solid var(--border-purple);
+            padding: 20px 16px;
+            flex-shrink: 0;
+            box-shadow: 0 0 20px rgba(0,0,0,0.6);
+        }
+
+        .sidebar-title {
+            color: var(--neon-yellow);
+            font-size: 13px;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .nav-btn {
+            width: 100%;
+            background: #161029;
+            border: 1px solid var(--border-purple);
+            color: #b8b0d0;
+            font-family: 'Press Start 2P', monospace;
+            font-size: 10px;
+            line-height: 1.6;
+            padding: 14px 12px;
+            margin-bottom: 10px;
+            text-align: left;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transition: 0.15s;
+        }
+
+        .nav-btn.active {
+            background: #132238;
+            border: 2px solid var(--neon-cyan);
+            color: #ffffff;
+            box-shadow: 0 0 10px rgba(0, 243, 255, 0.25);
+        }
+
+        .nav-btn:hover:not(.active) {
+            border-color: var(--neon-pink);
+        }
+
+        .divider {
+            height: 1px;
+            background: var(--border-purple);
+            margin: 16px 0;
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 14px;
+            margin-bottom: 6px;
+        }
+
+        /* RIGHT MAIN PANEL */
+        .main-panel {
+            flex: 1;
+            min-width: 0;
+            background: var(--panel-bg);
+            border: 2px solid var(--neon-cyan);
+            box-shadow: 0 0 25px rgba(0, 243, 255, 0.15);
+            padding: 24px 32px 40px;
+        }
+
+        .main-panel.pink-theme {
+            border-color: var(--neon-pink);
+            box-shadow: 0 0 25px rgba(255, 0, 127, 0.18);
+        }
+
+        .panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            padding-bottom: 14px;
+            border-bottom: 1px solid var(--neon-cyan);
+            margin-bottom: 24px;
+        }
+
+        .main-panel.pink-theme .panel-header {
+            border-bottom-color: var(--neon-pink);
+        }
+
+        .panel-header-title {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+        }
+
+        .panel-header h2 {
+            color: var(--neon-cyan);
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .main-panel.pink-theme .panel-header h2 {
+            color: var(--neon-pink);
+        }
+
+        .req-badge {
+            background: #132238;
+            border: 1px solid var(--neon-cyan);
+            color: var(--neon-cyan);
+            font-size: 10px;
+            line-height: 1.5;
+            padding: 8px 12px;
+            text-align: center;
+            flex-shrink: 0;
+        }
+
+        .main-panel.pink-theme .req-badge {
+            background: #2b0f26;
+            border-color: var(--neon-pink);
+            color: var(--neon-pink);
+        }
+
+        .login-center {
+            max-width: 480px;
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        .avatar-circle {
+            position: relative;
+            width: 68px;
+            height: 68px;
+            border-radius: 50%;
+            background: #22123d;
+            border: 2px solid #8a2be2;
+            box-shadow: 0 0 12px rgba(138, 43, 226, 0.45), inset 0 0 10px rgba(0, 0, 0, 0.6);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 16px;
+            overflow: hidden;
+        }
+
+        .avatar-circle::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: repeating-linear-gradient(
+                to bottom,
+                transparent 0px,
+                transparent 2px,
+                rgba(11, 7, 20, 0.45) 2px,
+                rgba(11, 7, 20, 0.45) 4px
+            );
+            pointer-events: none;
+        }
+
+        .login-title {
+            font-size: 20px;
+            margin-bottom: 10px;
+        }
+
+        .login-sub {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 14px;
+            color: var(--text-muted);
+            letter-spacing: 1px;
+            margin-bottom: 26px;
+        }
+
+        .field-group {
+            text-align: left;
+            margin-bottom: 18px;
+        }
+
+        .field-group label {
+            display: block;
+            color: var(--neon-cyan);
+            font-size: 11px;
+            margin-bottom: 8px;
+        }
+
+        .field-group input {
+            width: 100%;
+            background: #090612;
+            border: 1px solid var(--border-purple);
+            color: var(--neon-yellow);
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 16px;
+            padding: 13px 14px;
+            outline: none;
+        }
+
+        .field-group input:focus {
+            border-color: var(--neon-cyan);
+        }
+
+        .btn-cyan {
+            width: 100%;
+            background: var(--neon-cyan);
+            color: #05050a;
+            border: none;
+            font-family: 'Press Start 2P', monospace;
+            font-size: 12px;
+            padding: 16px;
+            cursor: pointer;
+            margin-top: 6px;
+            box-shadow: 0 0 15px rgba(0, 243, 255, 0.35);
+        }
+
+        .btn-cyan:hover { filter: brightness(1.1); }
+
+        .or-divider {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin: 22px 0;
+            color: #a398c7;
+            font-size: 10px;
+        }
+
+        .or-divider::before, .or-divider::after {
+            content: "";
+            flex: 1;
+            height: 1px;
+            background: var(--border-purple);
+        }
+
+        .btn-pink {
+            display: block;
+            width: 100%;
+            background: var(--neon-pink);
+            color: #ffffff;
+            border: 1px solid #ff7ab8;
+            text-decoration: none;
+            font-family: 'Press Start 2P', monospace;
+            font-size: 11px;
+            padding: 16px;
+            cursor: pointer;
+            box-shadow: 0 0 15px rgba(255, 0, 127, 0.35);
+        }
+
+        .btn-pink:hover { filter: brightness(1.1); }
+
+        .status-msg {
+            margin-top: 16px;
+            font-size: 10px;
+            color: var(--neon-yellow);
+            min-height: 16px;
+        }
+
+        .unlocked-box {
+            padding: 36px 20px;
+            text-align: center;
+        }
+
+        /* MODULE 3A: GAMES GRID */
+        .games-toolbar {
+            margin-bottom: 22px;
+        }
+
+        .games-desc {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 14px;
+            color: #cfc6e8;
+        }
+
+        .api-pill {
+            display: inline-block;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 12px;
+            color: #00ff88;
+            background: #0d261e;
+            border: 1px solid #00ff88;
+            padding: 4px 10px;
+            margin-top: 8px;
+        }
+
+        .refresh-btn {
+            background: #1b1236;
+            border: 1px solid var(--neon-cyan);
+            color: var(--neon-cyan);
+            font-family: 'Press Start 2P', monospace;
+            font-size: 9px;
+            padding: 10px 12px;
+            cursor: pointer;
+        }
+
+        .refresh-btn:hover {
+            background: var(--neon-cyan);
+            color: #06040a;
+        }
+
+        .games-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 18px;
+        }
+
+        @media (max-width: 920px) {
+            .games-grid { grid-template-columns: 1fr; }
+        }
+
+        .game-card {
+            background: #0e091c;
+            border: 2px solid var(--neon-cyan);
+            padding: 14px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            transition: transform 0.15s;
+        }
+
+        .game-card:hover {
+            transform: translateY(-3px);
+        }
+
+        .game-card.card-retro {
+            border-color: #9d4edd;
+        }
+
+        .game-card.card-new {
+            border-color: var(--neon-yellow);
+        }
+
+        .game-thumb-box {
+            position: relative;
+            width: 100%;
+            height: 135px;
+            background: #1d1138;
+            border: 1px solid #3c2369;
+            margin-bottom: 14px;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .game-badge {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            font-size: 8px;
+            padding: 4px 7px;
+            background: var(--neon-pink);
+            color: #ffffff;
+            z-index: 2;
+        }
+
+        .card-retro .game-badge {
+            background: var(--neon-yellow);
+            color: #0b0714;
+        }
+
+        .card-new .game-badge {
+            background: var(--neon-cyan);
+            color: #0b0714;
+        }
+
+        .game-title {
+            font-size: 11px;
+            line-height: 1.5;
+            color: var(--neon-cyan);
+            margin-bottom: 10px;
+            min-height: 34px;
+        }
+
+        .card-retro .game-title { color: #ff66b2; }
+        .card-new .game-title { color: var(--neon-yellow); }
+
+        .game-meta {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 13px;
+            color: #a89ec4;
+            line-height: 1.5;
+            margin-bottom: 14px;
+        }
+
+        .play-btn {
+            width: 100%;
+            background: var(--neon-cyan);
+            color: #05050a;
+            border: none;
+            font-family: 'Press Start 2P', monospace;
+            font-size: 10px;
+            padding: 12px 8px;
+            cursor: pointer;
+            box-shadow: 0 3px 0 #008b99;
+        }
+
+        .card-retro .play-btn {
+            background: var(--neon-pink);
+            color: #ffffff;
+            box-shadow: 0 3px 0 #99004d;
+        }
+
+        .card-new .play-btn {
+            background: #7b2cbf;
+            color: #ffffff;
+            box-shadow: 0 3px 0 #481675;
+        }
+
+        .play-btn:hover { filter: brightness(1.12); }
+
+        /* ARCADE CABINET EMBED MODAL */
+        .modal-backdrop {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(5, 3, 12, 0.9);
+            z-index: 100;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal-backdrop.open {
+            display: flex;
+        }
+
+        .arcade-modal {
+            background: #110c21;
+            border: 2px solid var(--neon-cyan);
+            box-shadow: 0 0 40px rgba(0, 243, 255, 0.35);
+            width: 100%;
+            max-width: 720px;
+            padding: 22px;
+        }
+
+        .modal-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border-purple);
+            padding-bottom: 12px;
+            margin-bottom: 14px;
+        }
+
+        .modal-top h3 {
+            font-size: 12px;
+            color: var(--neon-yellow);
+        }
+
+        .close-modal {
+            background: var(--neon-pink);
+            border: none;
+            color: #ffffff;
+            font-family: 'Press Start 2P', monospace;
+            font-size: 10px;
+            padding: 6px 10px;
+            cursor: pointer;
+        }
+
+        .cabinet-info {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 14px;
+            color: #cfc6e8;
+            margin-bottom: 12px;
+            line-height: 1.4;
+        }
+
+        .arcade-frame-wrap {
+            width: 100%;
+            height: 440px;
+            background: #05030a;
+            border: 2px solid #8a2be2;
+            margin-bottom: 14px;
+            overflow: hidden;
+        }
+
+        .arcade-frame-wrap iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .modal-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+    </style>
+</head>
+<body>
+
+<!-- TOP ARCADE HEADER BAR -->
+<header class="top-bar">
+    <div class="brand-left">
+        <div class="logo-square">F</div>
+        <div class="brand-titles">
+            <h1>FuuRoo // ARCADE OS</h1>
+            <p>SYSTEM INTEGRATION &amp; ARCHITECTURE DEMO</p>
+        </div>
+    </div>
+
+    <div class="status-right">
+        <div class="user-pill">
+            <span class="status-dot {% if user %}online{% endif %}"></span>
+            <span>USER: <strong style="color: var(--neon-yellow);">{{ user | upper if user else 'GUEST_MODE' }}</strong></span>
+        </div>
+        <button class="sfx-btn" id="sfx-toggle" onclick="toggleSfx()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                <path d="M11 5L6 9H2V15H6L11 19V5Z" fill="#ffffff"/>
+                <path d="M15.5 8.5C16.5 9.5 17 10.7 17 12C17 13.3 16.5 14.5 15.5 15.5" stroke="#ffffff" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+            <span id="sfx-text">SFX: ON</span>
+        </button>
+        <div class="fps-counter">FPS: <span id="fps-val">60</span></div>
+    </div>
+</header>
+
+<!-- MAIN WORKSPACE -->
+<div class="workspace">
+    <div class="layout">
+        <!-- LEFT SIDEBAR -->
+        <aside class="sidebar">
+            <div class="sidebar-title">
+                <svg class="retro-icon" viewBox="0 0 24 24" fill="none">
+                    <rect x="2" y="6" width="20" height="12" rx="6" fill="#ffea00"/>
+                    <path d="M7 10V14M5 12H9" stroke="#110c21" stroke-width="2" stroke-linecap="round"/>
+                    <circle cx="15.5" cy="10.8" r="1.1" fill="#110c21"/>
+                    <circle cx="18" cy="13" r="1.1" fill="#110c21"/>
+                </svg>
+                <span>MODULES</span>
+            </div>
+
+            <button class="nav-btn active" id="nav-auth" onclick="switchTab('auth')">
+                <svg class="retro-icon" viewBox="0 0 24 24" fill="none">
+                    <circle cx="15.5" cy="8.5" r="4.5" fill="#ff007f"/>
+                    <circle cx="16.5" cy="7.5" r="1.2" fill="#132238"/>
+                    <path d="M12.2 11.8L5 19H8.5V16.5H11V14L13.5 11.5" fill="#ff007f"/>
+                </svg>
+                <span>1. AUTH /<br>OAUTH</span>
+            </button>
+
+            <button class="nav-btn" id="nav-games" onclick="switchTab('games')">
+                <svg class="retro-icon" viewBox="0 0 24 24" fill="none">
+                    <path d="M5 11C5 6.5 8 4 12 4C16 4 19 6.5 19 11V20L16.5 18L14.2 20L12 18L9.8 20L7.5 18L5 20V11Z" fill="#ffea00"/>
+                    <rect x="8.5" y="9" width="2" height="2.5" fill="#161029"/>
+                    <rect x="13.5" y="9" width="2" height="2.5" fill="#161029"/>
+                </svg>
+                <span>2. GAMES (3A)</span>
+            </button>
+
+            <button class="nav-btn" onclick="showNotice('COMING NEXT: MODULE 3B UTILITIES')">
+                <svg class="retro-icon" viewBox="0 0 24 24" fill="none">
+                    <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z" fill="#00f3ff"/>
+                    <path d="M4.5 4.5L9.5 9.5M14.5 14.5L19.5 19.5" stroke="#00f3ff" stroke-width="2.4" stroke-linecap="round"/>
+                </svg>
+                <span>3. UTILITIES<br>(3B)</span>
+            </button>
+
+            <button class="nav-btn" onclick="showNotice('COMING NEXT: MODULE 3C SOCIAL')">
+                <svg class="retro-icon" viewBox="0 0 24 24" fill="none">
+                    <circle cx="17.5" cy="5.5" r="3" fill="#ff007f"/>
+                    <circle cx="6.5" cy="12" r="3" fill="#ff007f"/>
+                    <circle cx="17.5" cy="18.5" r="3" fill="#ff007f"/>
+                    <line x1="8.8" y1="10.7" x2="15.2" y2="6.8" stroke="#ff007f" stroke-width="2.4"/>
+                    <line x1="8.8" y1="13.3" x2="15.2" y2="17.2" stroke="#ff007f" stroke-width="2.4"/>
+                </svg>
+                <span>4. SOCIAL (3C)</span>
+            </button>
+
+            <div class="divider"></div>
+
+            <div class="sidebar-title" style="font-size: 11px;">PROJECT INFO</div>
+            <div class="info-row"><span style="color:var(--text-muted)">STACK:</span><span>Python + Flask</span></div>
+            <div class="info-row"><span style="color:var(--text-muted)">STYLE:</span><span style="color:var(--neon-cyan)">Friv / Tetr.io</span></div>
+            <div class="info-row"><span style="color:var(--text-muted)">DB RECORDS:</span><span style="color:var(--neon-pink)">20 Faker Rows</span></div>
+        </aside>
+
+        <!-- RIGHT MAIN PANEL -->
+        <main class="main-panel" id="main-panel">
+
+            <!-- ================= TAB 1: MODULE 1 AUTH ================= -->
+            <section id="view-auth">
+                <div class="panel-header">
+                    <div class="panel-header-title">
+                        <svg class="retro-icon" style="margin-top: 2px;" viewBox="0 0 24 24" fill="none">
+                            <path d="M12 2L4 5.5V11.5C4 16.8 7.4 21.7 12 23C16.6 21.7 20 16.8 20 11.5V5.5L12 2Z" fill="#00f3ff"/>
+                            <path d="M12 4.5V20.5C15.4 19.3 17.8 15.6 17.8 11.5V7L12 4.5Z" fill="#132238"/>
+                        </svg>
+                        <h2>MODULE 1: AUTHENTICATION &amp; OAUTH 2.0</h2>
+                    </div>
+                    <div class="req-badge">REQ<br>#1</div>
+                </div>
+
+                {% if user %}
+                <!-- LOGGED IN VIEW -->
+                <div class="unlocked-box">
+                    <div class="avatar-circle" style="border-color: var(--neon-cyan);">✔</div>
+                    <h1 class="login-title" style="color: var(--neon-cyan);">SYSTEM UNLOCKED</h1>
+                    <p class="login-sub" style="color: var(--neon-yellow); margin-top: 16px;">PLAYER: {{ user }}</p>
+                    <p class="login-sub">PROTOCOL: {{ auth_method }}</p>
+                    <div style="display:flex; gap:14px; justify-content:center; flex-wrap:wrap; margin-top: 26px;">
+                        <button class="btn-cyan" style="max-width: 260px; margin:0;" onclick="switchTab('games')">▶ OPEN GAMES (3A)</button>
+                        <a href="/logout" class="btn-pink" style="max-width: 220px;">[ LOG OUT ]</a>
+                    </div>
+                </div>
+                {% else %}
+                <!-- SYSTEM LOGIN VIEW -->
+                <div class="login-center">
+                    <div class="avatar-circle">
+                        <svg width="42" height="42" viewBox="0 0 24 24" fill="none">
+                            <path d="M5 9.5C5 5.91 7.91 3 11.5 3H12.5C16.09 3 19 5.91 19 9.5V10.5C19 14.09 16.09 17 12.5 17H11.5C7.91 17 5 14.09 5 10.5V9.5Z" fill="#f5d927"/>
+                            <rect x="3.5" y="8" width="2" height="4.5" rx="1" fill="#f5d927"/>
+                            <rect x="18.5" y="8" width="2" height="4.5" rx="1" fill="#f5d927"/>
+                            <rect x="7.5" y="7" width="9" height="6.5" rx="2.5" fill="#22123d"/>
+                            <path d="M10.2 8.2L10.8 9.6L12.2 10.2L10.8 10.8L10.2 12.2L9.6 10.8L8.2 10.2L9.6 9.6L10.2 8.2Z" fill="#f5d927"/>
+                            <path d="M4.5 21C4.5 18.2 7.2 16.5 12 16.5C16.8 16.5 19.5 18.2 19.5 21H16V18.8H8V21H4.5Z" fill="#f5d927"/>
+                            <rect x="9.2" y="19.5" width="2.2" height="1.8" rx="0.4" fill="#f5d927"/>
+                            <circle cx="13.8" cy="20.4" r="0.9" fill="#f5d927"/>
+                        </svg>
+                    </div>
+                    <h1 class="login-title">SYSTEM LOGIN</h1>
+                    <p class="login-sub">AUTHENTICATE TO UNLOCK ALL RETRO MODULES</p>
+
+                    <div class="field-group">
+                        <label>USERNAME / EMAIL</label>
+                        <input type="text" id="username" value="player_one">
+                    </div>
+
+                    <div class="field-group">
+                        <label>PASSCODE</label>
+                        <input type="password" id="password" value="fuuroo1234">
+                    </div>
+
+                    <button class="btn-cyan" onclick="loginLocal()">↪ LOG IN (LOCAL SYSTEM)</button>
+
+                    <div class="or-divider">OR OAUTH 2.0</div>
+
+                    <a href="/login/google" class="btn-pink">G &nbsp;SIGN IN WITH GOOGLE (OAUTH 2.0)</a>
+
+                    <div class="status-msg" id="status-msg"></div>
+                </div>
+                {% endif %}
+            </section>
+
+            <!-- ================= TAB 2: MODULE 3A GAMES ================= -->
+            <section id="view-games" style="display: none;">
+                <div class="panel-header">
+                    <div class="panel-header-title">
+                        <svg class="retro-icon" style="margin-top: 2px;" viewBox="0 0 24 24" fill="none">
+                            <rect x="2" y="6" width="20" height="12" rx="6" fill="#ff007f"/>
+                            <path d="M7 10V14M5 12H9" stroke="#ffffff" stroke-width="2" stroke-linecap="round"/>
+                            <circle cx="15.5" cy="10.8" r="1.2" fill="#ffffff"/>
+                            <circle cx="18" cy="13" r="1.2" fill="#ffffff"/>
+                        </svg>
+                        <h2>MODULE 2: MEDIA &amp; ENTERTAINMENT<br>(VIDEO GAMES)</h2>
+                    </div>
+                    <div class="req-badge">REQ<br>#3A</div>
+                </div>
+
+                <div class="games-toolbar">
+                    <p class="games-desc">3 classic arcade ROM cabinets streamed via the Internet Archive REST API.</p>
+                    <span class="api-pill" id="api-source-badge">CONNECTING TO /API/GAMES...</span>
+                </div>
+
+                <div class="games-grid" id="games-grid">
+                    <!-- 3 Fixed Retro Game Cards injected here -->
+                </div>
+            </section>
+
+        </main>
+    </div>
+</div>
+
+<!-- REAL ARCADE ROM CABINET MODAL -->
+<div class="modal-backdrop" id="game-modal">
+    <div class="arcade-modal">
+        <div class="modal-top">
+            <h3 id="modal-game-title">ARCADE CABINET</h3>
+            <button class="close-modal" onclick="closeGameModal()">✕ EXIT</button>
+        </div>
+        <p class="cabinet-info" id="modal-game-desc"></p>
+        <div class="arcade-frame-wrap">
+            <iframe id="arcade-iframe" src="" allowfullscreen allow="autoplay; fullscreen"></iframe>
+        </div>
+        <div class="modal-actions">
+            <span id="modal-controls" style="font-family:'Share Tech Mono',monospace; font-size:13px; color:var(--neon-yellow);">
+                [ARROWS] MOVE &nbsp; [CTRL] SHOOT/ATTACK &nbsp; [ALT] JUMP &nbsp; [SPACE] SPECIAL
+            </span>
+            <button class="refresh-btn" id="modal-restart-btn">↻ RELOAD ROM</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    const isAuthenticated = {{ 'true' if user else 'false' }};
+    let sfxOn = true;
+    let loadedGames = [];
+
+    const GAME_ICONS = {};
+
+    function playBeep(freq = 520, duration = 0.06) {
+        if (!sfxOn) return;
+        try {
+            const ctx = new (window.AudioContext || window.webkitAudioContext)();
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.type = "square";
+            osc.frequency.value = freq;
+            gain.gain.value = 0.04;
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.start();
+            osc.stop(ctx.currentTime + duration);
+        } catch (e) {}
+    }
+
+    function toggleSfx() {
+        sfxOn = !sfxOn;
+        const btn = document.getElementById("sfx-toggle");
+        const txt = document.getElementById("sfx-text");
+        txt.innerText = sfxOn ? "SFX: ON" : "SFX: OFF";
+        btn.style.background = sfxOn ? "#8a00e6" : "#2a203d";
+        if (sfxOn) playBeep(660, 0.08);
+    }
+
+    function showNotice(msg) {
+        playBeep(260, 0.08);
+        const el = document.getElementById("status-msg");
+        if (el) {
+            el.innerText = "! " + msg;
+        } else {
+            alert(msg);
+        }
+    }
+
+    function switchTab(tab) {
+        if (tab !== "auth" && !isAuthenticated) {
+            showNotice("LOCKED: COMPLETE AUTHENTICATION FIRST");
+            return;
+        }
+        playBeep(580, 0.06);
+
+        const panel = document.getElementById("main-panel");
+        document.getElementById("view-auth").style.display = tab === "auth" ? "block" : "none";
+        document.getElementById("view-games").style.display = tab === "games" ? "block" : "none";
+
+        document.getElementById("nav-auth").classList.toggle("active", tab === "auth");
+        document.getElementById("nav-games").classList.toggle("active", tab === "games");
+
+        if (tab === "games") {
+            panel.classList.add("pink-theme");
+            if (loadedGames.length === 0) loadGames();
+        } else {
+            panel.classList.remove("pink-theme");
+        }
+    }
+
+    async function loginLocal() {
+        const username = document.getElementById("username").value;
+        const password = document.getElementById("password").value;
+
+        const res = await fetch("/login/local", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ username, password })
+        });
+        const data = await res.json();
+
+        if (data.success) {
+            playBeep(740, 0.1);
+            window.location.reload();
+        } else {
+            showNotice(data.error);
+        }
+    }
+
+    async function loadGames() {
+        playBeep(480, 0.06);
+        const grid = document.getElementById("games-grid");
+        const sourceBadge = document.getElementById("api-source-badge");
+        sourceBadge.innerText = "FETCHING /API/GAMES...";
+
+        try {
+            const res = await fetch("/api/games");
+            const data = await res.json();
+            loadedGames = data.games || [];
+            sourceBadge.innerText = "SOURCE: " + data.source;
+
+            const cardThemes = ["", "card-retro", "card-new"];
+            grid.innerHTML = loadedGames.map((g, idx) => `
+                <div class="game-card ${cardThemes[idx % 3]}">
+                    <div>
+                        <div class="game-thumb-box">
+                            <span class="game-badge">${g.badge}</span>
+                            ${GAME_ICONS[g.id] || `<svg width="64" height="64" viewBox="0 0 24 24" fill="none"><rect x="4" y="14" width="16" height="5" rx="1" fill="#ff007f"/><rect x="11" y="7" width="2" height="7" fill="#00f3ff"/><circle cx="12" cy="6" r="3" fill="#ffea00"/></svg>`}
+                        </div>
+                        <div class="game-title">${idx + 1}. ${g.title}</div>
+                        <div class="game-meta">
+                            <div>GENRE: <span style="color:#ffffff;">${g.genre} (${g.year})</span></div>
+                            <div>DEV: <span style="color:var(--neon-cyan);">${g.publisher}</span></div>
+                            <div>API PLAYS: <span style="color:var(--neon-yellow);">${g.plays}</span></div>
+                            <div style="margin-top:6px; font-size:12px;">${g.short_description}</div>
+                        </div>
+                    </div>
+                    <button class="play-btn" onclick="openGameModal(${idx})">▶ PLAY ROM</button>
+                </div>
+            `).join("");
+        } catch (err) {
+            sourceBadge.innerText = "API CONNECTION ERROR";
+            grid.innerHTML = `<p style="font-size:10px; color:var(--neon-pink);">FAILED TO LOAD GAMES API.</p>`;
+        }
+    }
+
+    function lockArcadeKeys(e) {
+        if (["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", " "].includes(e.key)) {
+            e.preventDefault();
+        }
+    }
+
+    function openGameModal(index) {
+        const game = loadedGames[index];
+        if (!game) return;
+        playBeep(660, 0.08);
+
+        const iframe = document.getElementById("arcade-iframe");
+        document.getElementById("modal-game-title").innerText = game.title;
+        document.getElementById("modal-game-desc").innerHTML = 
+            `1. CLICK POWER ICON &amp; CLICK INSIDE SCREEN &nbsp;|&nbsp; 2. PRESS <strong style="color:var(--neon-yellow)">[5]</strong> COIN &amp; <strong style="color:var(--neon-yellow)">[1]</strong> START`;
+        document.getElementById("modal-controls").innerText = "[ARROWS] MOVE   [CTRL] SHOOT/ATTACK   [ALT] JUMP   [SPACE] SPECIAL";
+        iframe.src = game.embed_url;
+
+        window.addEventListener("keydown", lockArcadeKeys);
+        iframe.onload = () => iframe.focus();
+
+        document.getElementById("modal-restart-btn").onclick = () => {
+            iframe.src = game.embed_url;
+        };
+
+        document.getElementById("game-modal").classList.add("open");
+    }
+
+    function closeGameModal() {
+        document.getElementById("game-modal").classList.remove("open");
+        document.getElementById("arcade-iframe").src = "";
+        window.removeEventListener("keydown", lockArcadeKeys);
+    }
+</script>
+</body>
+</html>
