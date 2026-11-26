@@ -19,6 +19,36 @@ SCOPES = [
 ]
 REDIRECT_URI = "http://localhost:5000/callback"
 
+FEATURED_GAMES = {
+    "ben10": {
+        "id": "ben-10-savage-pursuit",
+        "title": "Ben 10: Savage Pursuit",
+        "tag": "2006",
+        "archive_id": "Ben_10_Savage_Pursuit",
+        "search_q": 'title:("Ben 10" AND "Savage Pursuit")',
+        "cache_file": "ben10.swf",
+        "desc": "Classic Cartoon Network Flash action platformer.",
+    },
+    "gunblood": {
+        "id": "gunblood_flash",
+        "title": "GunBlood",
+        "tag": "2008",
+        "archive_id": "gunblood_flash",
+        "search_q": 'identifier:(gunblood_flash) OR title:("GunBlood")',
+        "cache_file": "gunblood.swf",
+        "desc": "Fast-paced Western duel Flash shootout game.",
+    },
+    "whackyourboss": {
+        "id": "whack_your_boss_17ways",
+        "title": "Whack Your Boss (17 Ways)",
+        "tag": "2007",
+        "archive_id": "whack_your_boss_17ways",
+        "search_q": 'identifier:(whack_your_boss_17ways) OR title:("Whack Your Boss")',
+        "cache_file": "whack_your_boss.swf",
+        "desc": "Classic office stress-relief Flash point-and-click game.",
+    },
+}
+
 
 # ================= MAIN PORTAL ROUTE =================
 @app.route("/")
@@ -139,14 +169,15 @@ def get_games():
         return jsonify({
             "games": [
                 {
-                    "id": "ben-10-savage-pursuit",
-                    "title": "Ben 10: Savage Pursuit",
-                    "tag": "2006",
-                    "thumb": "https://archive.org/services/img/Ben_10_Savage_Pursuit",
-                    "embed": "/api/media/swf_proxy",
+                    "id": g["id"],
+                    "title": g["title"],
+                    "tag": g["tag"],
+                    "thumb": f"https://archive.org/services/img/{g['archive_id']}",
+                    "embed": f"/api/media/swf_proxy?game={key}",
                     "type": "swf",
-                    "desc": "Classic Cartoon Network Flash action platformer.",
+                    "desc": g["desc"],
                 }
+                for key, g in FEATURED_GAMES.items()
             ]
         })
 
@@ -183,7 +214,10 @@ def get_games():
 
 @app.route("/api/media/swf_proxy")
 def swf_proxy():
-    local_swf = os.path.join(app.root_path, "static", "games", "ben10.swf")
+    game_key = request.args.get("game", "ben10").strip().lower()
+    game_cfg = FEATURED_GAMES.get(game_key, FEATURED_GAMES["ben10"])
+
+    local_swf = os.path.join(app.root_path, "static", "games", game_cfg["cache_file"])
     if os.path.exists(local_swf):
         return send_file(local_swf, mimetype="application/x-shockwave-flash")
 
@@ -192,22 +226,28 @@ def swf_proxy():
         "Accept": "*/*",
     }
 
-    # Dynamically search Internet Archive items and inspect their file lists for a real .swf
+    # Check the exact Archive.org identifier first, then fall back to title search
+    candidate_ids = [game_cfg["archive_id"]]
     try:
         search_res = requests.get(
             "https://archive.org/advancedsearch.php",
             params={
-                "q": 'title:("Ben 10" AND "Savage Pursuit")',
+                "q": game_cfg["search_q"],
                 "fl[]": ["identifier"],
                 "output": "json",
-                "rows": 10,
+                "rows": 8,
             },
             headers=headers,
             timeout=10,
         ).json()
-
         for doc in search_res.get("response", {}).get("docs", []):
-            ident = doc["identifier"]
+            if doc["identifier"] not in candidate_ids:
+                candidate_ids.append(doc["identifier"])
+    except Exception:
+        pass
+
+    for ident in candidate_ids:
+        try:
             meta = requests.get(f"https://archive.org/metadata/{ident}", headers=headers, timeout=10).json()
             for file_info in meta.get("files", []):
                 fname = file_info.get("name", "")
@@ -219,10 +259,10 @@ def swf_proxy():
                         with open(local_swf, "wb") as f:
                             f.write(r.content)
                         return Response(r.content, content_type="application/x-shockwave-flash")
-    except Exception:
-        pass
+        except Exception:
+            continue
 
-    return jsonify({"error": "No valid SWF binary found; place ben10.swf in static/games/"}), 502
+    return jsonify({"error": f"No valid SWF found for {game_cfg['title']}"}), 502
 
 
 @app.route("/api/media/music")

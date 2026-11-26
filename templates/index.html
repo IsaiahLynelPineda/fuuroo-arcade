@@ -588,9 +588,10 @@
                 <div class="side-box-header">Top Hits Today</div>
                 <div class="side-box-content">
                     <ul class="dir-list">
-                        <li><a onclick="openPlayer('Ben 10: Savage Pursuit', '/api/media/swf_proxy', 'swf')">1. Ben 10: Savage Pursuit</a> <span class="dir-count">Flash</span></li>
-                        <li><a onclick="openPlayer('Night of the Living Dead', 'https://archive.org/embed/night_of_the_living_dead')">2. Living Dead</a> <span class="dir-count">Movie</span></li>
-                        <li><a onclick="openPlayer('Superman (1941)', 'https://archive.org/embed/superman_mechanical_monsters')">3. Superman</a> <span class="dir-count">Video</span></li>
+                        <li><a onclick="openPlayer('Ben 10: Savage Pursuit', '/api/media/swf_proxy?game=ben10', 'swf')">1. Ben 10: Savage Pursuit</a> <span class="dir-count">Flash</span></li>
+                        <li><a onclick="openPlayer('GunBlood', '/api/media/swf_proxy?game=gunblood', 'swf')">2. GunBlood</a> <span class="dir-count">Flash</span></li>
+                        <li><a onclick="openPlayer('Whack Your Boss (17 Ways)', '/api/media/swf_proxy?game=whackyourboss', 'swf')">3. Whack Your Boss</a> <span class="dir-count">Flash</span></li>
+                        <li><a onclick="openPlayer('Night of the Living Dead', 'https://archive.org/embed/night_of_the_living_dead')">4. Living Dead</a> <span class="dir-count">Movie</span></li>
                     </ul>
                 </div>
             </div>
@@ -691,7 +692,7 @@
                     <div id="msub-games" style="display:none;">
                         <div style="background:#fdf2f2; border:1px solid #d49b9b; padding:8px; margin-bottom:10px; display:flex; gap:6px; align-items:center; flex-wrap:wrap;">
                             <strong>Flash Game Search:</strong>
-                            <input type="text" id="game-query" placeholder="e.g. Ben 10, Stickman, Bloons, Quiz..." style="flex:1; min-width:160px; padding:4px; border:1px solid #888; background:#ffffd9;">
+                            <input type="text" id="game-query" placeholder="e.g. Ben 10, GunBlood, Whack Your Boss..." style="flex:1; min-width:160px; padding:4px; border:1px solid #888; background:#ffffd9;">
                             <select id="game-cat" style="padding:4px; border:1px solid #888; background:#fff;">
                                 <option value="softwarelibrary_flash">Flash Games (Y8 / Newgrounds)</option>
                                 <option value="internetarcade">Retro Arcade (MAME)</option>
@@ -1145,7 +1146,7 @@
     /* ================= SOCIAL (3C) ================= */
     function loadSocial() {
         document.getElementById("wall-ig").innerText = "Latest Photo: Retro gaming setup & classic movie night on FuuRoo.com! #Web2 #Throwback";
-        document.getElementById("wall-x").innerText = "Status Update: Just added Ben 10: Savage Pursuit to FuuRoo!";
+        document.getElementById("wall-x").innerText = "Status Update: Added Ben 10, GunBlood & Whack Your Boss to FuuRoo!";
         document.getElementById("wall-fb").innerText = "FuuRoo.com shared a link: Check out our new URL Shortener and Database Generator tools.";
     }
 
