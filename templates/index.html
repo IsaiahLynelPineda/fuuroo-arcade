@@ -593,8 +593,8 @@
             <strong id="breadcrumb-text">Member Login &amp; OAuth 2.0</strong>
         </div>
         <div>
-            <span style="background:#3b5998; color:#fff; padding:2px 6px; border-radius:2px; font-size:10px;">f Like 1.4k</span>
-            <span style="background:#ff6600; color:#fff; padding:2px 6px; border-radius:2px; font-size:10px;">+ Share</span>
+            <span style="background:#3b5998; color:#fff; padding:2px 6px; border-radius:2px; font-size:10px; cursor:pointer;" onclick="switchTab('social')">f Like 1.4k</span>
+            <span style="background:#ff6600; color:#fff; padding:2px 6px; border-radius:2px; font-size:10px; cursor:pointer;" onclick="switchTab('social')">+ Share</span>
         </div>
     </div>
 
@@ -811,35 +811,97 @@
             </section>
 
             <!-- ===================================================== -->
-            <!-- MODULE 3C: SOCIAL MEDIA (IG, X, FB)                   -->
+            <!-- MODULE 3C: SOCIAL MEDIA PROMOTION HUB (IG, X, FB)     -->
             <!-- ===================================================== -->
             <section id="sec-social" class="portal-panel" style="display:none;">
                 <div class="panel-bar">
-                    <h2>Social Media Hub (Instagram, X, Facebook)</h2>
+                    <h2>Social Media Hub &amp; Portal Promotion (Instagram, X, Facebook)</h2>
                     <span style="color:#666;">Requirement #3C</span>
                 </div>
                 <div class="panel-inner">
-                    <div class="form-row">
-                        <label>Post Status Across All Connected Networks (IG + X + FB):</label>
-                        <textarea id="social-text" rows="2" placeholder="What's on your mind? Post simultaneously to Instagram, X, and Facebook..."></textarea>
-                    </div>
-                    <button class="btn-classic btn-blue" onclick="postSocial()">Post to IG, X &amp; FB</button>
-                    <button class="btn-classic" onclick="loadSocial()">Refresh Feeds</button>
 
+                    <!-- 1. OFFICIAL FUUROO SOCIAL CHANNELS -->
+                    <div class="util-block">
+                        <h3>1. Follow FuuRoo Official Channels</h3>
+                        <div class="social-cols" style="margin-top:6px;">
+                            <div class="wall-box" style="border-color:#c13584; background:#fff7fb;">
+                                <div class="wall-header" style="color:#c13584;">
+                                    <span>Instagram Official</span>
+                                    <span>@fuuroo.official</span>
+                                </div>
+                                <p style="font-size:10px; color:#444; margin-bottom:8px;">
+                                    Retro Flash game highlights, Operation Ivy playlist drops &amp; portal updates.
+                                </p>
+                                <div style="display:flex; justify-content:space-between; align-items:center;">
+                                    <span style="font-size:10px; color:#666;"><strong>2,480</strong> Followers</span>
+                                    <a href="https://www.instagram.com/" target="_blank" rel="noopener" class="btn-classic" style="background:linear-gradient(to bottom, #e1306c 0%, #9b1b47 100%); color:#fff; border-color:#701032;">Follow on IG &raquo;</a>
+                                </div>
+                            </div>
+
+                            <div class="wall-box" style="border-color:#222222; background:#f8f9fa;">
+                                <div class="wall-header" style="color:#111111;">
+                                    <span>X (Twitter) Official</span>
+                                    <span>@FuuRooPortal</span>
+                                </div>
+                                <p style="font-size:10px; color:#444; margin-bottom:8px;">
+                                    Live portal announcements, new Ruffle SWF releases &amp; SIA dev logs.
+                                </p>
+                                <div style="display:flex; justify-content:space-between; align-items:center;">
+                                    <span style="font-size:10px; color:#666;"><strong>1,920</strong> Followers</span>
+                                    <a href="https://x.com/" target="_blank" rel="noopener" class="btn-classic" style="background:linear-gradient(to bottom, #333333 0%, #000000 100%); color:#fff; border-color:#000;">Follow on X &raquo;</a>
+                                </div>
+                            </div>
+
+                            <div class="wall-box" style="border-color:#3b5998; background:#f2f6fc;">
+                                <div class="wall-header" style="color:#3b5998;">
+                                    <span>Facebook Official Page</span>
+                                    <span>/FuuRooPortal</span>
+                                </div>
+                                <p style="font-size:10px; color:#444; margin-bottom:8px;">
+                                    Community wall, high-score challenges &amp; NEU CCS student showcase.
+                                </p>
+                                <div style="display:flex; justify-content:space-between; align-items:center;">
+                                    <span style="font-size:10px; color:#666;"><strong>3,150</strong> Page Likes</span>
+                                    <a href="https://www.facebook.com/" target="_blank" rel="noopener" class="btn-classic btn-blue">Like Page &raquo;</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 2. VIRAL PROMO SHARE & COMMUNITY COMPOSER -->
+                    <div class="util-block">
+                        <h3>2. Promote FuuRoo — Share to X, Facebook, Instagram &amp; Portal Wall</h3>
+                        <div class="form-row">
+                            <label>Promo Message / Community Shoutout:</label>
+                            <textarea id="social-text" rows="2">Check out FuuRoo.com! Free classic Flash games, Operation Ivy radio, and web utilities in a 2008 Web 2.0 portal! #FuuRoo #Web2</textarea>
+                        </div>
+                        <div style="display:flex; gap:6px; flex-wrap:wrap; align-items:center;">
+                            <button class="btn-classic btn-green" onclick="postSocial()">Post to Wall Feeds</button>
+                            <button class="btn-classic" style="background:linear-gradient(to bottom, #333 0%, #000 100%); color:#fff;" onclick="shareToExternal('X')">Share on X (Live Intent)</button>
+                            <button class="btn-classic btn-blue" onclick="shareToExternal('FB')">Share on Facebook (Live)</button>
+                            <button class="btn-classic" style="background:linear-gradient(to bottom, #e1306c 0%, #9b1b47 100%); color:#fff;" onclick="shareToExternal('IG')">Copy Caption for IG</button>
+                        </div>
+                        <div class="notice-box" id="social-status-box" style="margin-top:8px;">
+                            Ready to promote FuuRoo across Instagram, X, and Facebook!
+                        </div>
+                    </div>
+
+                    <!-- 3. 3-COLUMN PROMO FEEDS -->
                     <div class="social-cols">
                         <div class="wall-box">
-                            <div class="wall-header"><span>Instagram Feed</span><span>@fuuroo</span></div>
-                            <div id="wall-ig">Loading Instagram API feed...</div>
+                            <div class="wall-header"><span>Instagram Feed</span><span>@fuuroo.official</span></div>
+                            <div id="wall-ig"></div>
                         </div>
                         <div class="wall-box">
-                            <div class="wall-header"><span>X (Twitter) Feed</span><span>@FuuRooWeb</span></div>
-                            <div id="wall-x">Loading X API feed...</div>
+                            <div class="wall-header"><span>X (Twitter) Feed</span><span>@FuuRooPortal</span></div>
+                            <div id="wall-x"></div>
                         </div>
                         <div class="wall-box">
-                            <div class="wall-header"><span>Facebook Wall</span><span>/FuuRoo</span></div>
-                            <div id="wall-fb">Loading Facebook Graph feed...</div>
+                            <div class="wall-header"><span>Facebook Wall</span><span>/FuuRooPortal</span></div>
+                            <div id="wall-fb"></div>
                         </div>
                     </div>
+
                 </div>
             </section>
 
@@ -884,7 +946,7 @@
 
     const PORTAL_TOOLS = [
         { title: "Web Utilities (URL, SMS/Email, Faker DB)", tag: "Utility (3B)", desc: "Shorten URLs, send SMS/Email, and generate 20+ SQLite records across 10 fields.", action: "switchTab('utils')", btn: "Open Utilities" },
-        { title: "Social Media Hub (IG / X / FB)", tag: "Social (3C)", desc: "Post updates across Instagram, X, and Facebook.", action: "switchTab('social')", btn: "Open Hub" }
+        { title: "Social Media Hub (IG / X / FB)", tag: "Social (3C)", desc: "Follow FuuRoo channels and share updates across Instagram, X, and Facebook.", action: "switchTab('social')", btn: "Open Hub" }
     ];
 
     function switchTab(tab) {
@@ -902,7 +964,7 @@
             auth: "Member Login & OAuth 2.0",
             media: "Media & Entertainment (Movies, Music, Games)",
             utils: "Web Utilities (URL Shortening, SMS & Email, Fake Data DB)",
-            social: "Social Media Hub (Instagram, X, Facebook)"
+            social: "Social Media Hub & Portal Promotion (Instagram, X, Facebook)"
         };
         document.getElementById("breadcrumb-text").innerText = names[tab];
 
@@ -1298,26 +1360,90 @@
     }
 
     /* ================= SOCIAL (3C) ================= */
-    function loadSocial() {
-        document.getElementById("wall-ig").innerText = "Latest Photo: Retro gaming setup & classic movie night on FuuRoo.com! #Web2 #Throwback";
-        document.getElementById("wall-x").innerText = "Status Update: Added Ben 10, GunBlood & Whack Your Boss to FuuRoo!";
-        document.getElementById("wall-fb").innerText = "FuuRoo.com shared a link: Check out our new URL Shortener and Database Generator tools.";
+    const DEFAULT_SOCIAL_FEEDS = {
+        ig: [
+            { author: "@fuuroo.official", text: "Play Ben 10: Savage Pursuit & GunBlood right in your browser with Ruffle WASM! Link in bio.", likes: 48, time: "2h ago" },
+            { author: "@fuuroo.official", text: "Now streaming Operation Ivy's Energy album on FuuRoo Internet Radio!", likes: 63, time: "1d ago" }
+        ],
+        x: [
+            { author: "@FuuRooPortal", text: "FuuRoo Web 2.0 Portal is LIVE! Free games, movies, music, URL shortener & Gmail API alerts in one place. #SIA2026", likes: 29, time: "1h ago" },
+            { author: "@FuuRooPortal", text: "Who remembers playing Flash games after class in 2008? Come try Whack Your Boss on FuuRoo!", likes: 41, time: "5h ago" }
+        ],
+        fb: [
+            { author: "FuuRoo Web Portal", text: "Welcome NEU CCS students & visitors! Share our portal link with your classmates and test all 5 integrated modules.", likes: 85, time: "3h ago" },
+            { author: "FuuRoo Web Portal", text: "New Feature: Generate 20+ Faker user records across 10 fields saved straight to SQLite.", likes: 37, time: "1d ago" }
+        ]
+    };
+
+    function getSocialStore() {
+        try {
+            const saved = localStorage.getItem("fuuroo_social_feeds");
+            if (saved) return JSON.parse(saved);
+        } catch (e) {}
+        return JSON.parse(JSON.stringify(DEFAULT_SOCIAL_FEEDS));
     }
 
-    async function postSocial() {
-        const content = document.getElementById("social-text").value.trim();
-        if (!content) return;
-        try {
-            await fetch("/api/social/post", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ content })
-            });
-        } catch (e) {}
-        document.getElementById("wall-ig").innerHTML = `<strong>[Just Posted]</strong> ${content}`;
-        document.getElementById("wall-x").innerHTML = `<strong>[Just Posted]</strong> ${content}`;
-        document.getElementById("wall-fb").innerHTML = `<strong>[Just Posted]</strong> ${content}`;
-        document.getElementById("social-text").value = "";
+    function loadSocial() {
+        const store = getSocialStore();
+        ["ig", "x", "fb"].forEach(net => {
+            const box = document.getElementById("wall-" + net);
+            if (!box) return;
+            box.innerHTML = store[net].map((item, idx) => `
+                <div style="background:#fff; border:1px solid #d0d9e6; padding:7px; margin-bottom:7px; border-radius:2px;">
+                    <div style="display:flex; justify-content:space-between; font-size:10px; color:#003399; font-weight:bold; margin-bottom:3px;">
+                        <span>${item.author}</span>
+                        <span style="color:#777; font-weight:normal;">${item.time}</span>
+                    </div>
+                    <div style="font-size:11px; color:#222; margin-bottom:5px;">${item.text}</div>
+                    <button class="btn-classic" style="padding:2px 6px; font-size:10px;" onclick="likeSocialPost('${net}', ${idx})">&#9829; Like (${item.likes})</button>
+                </div>
+            `).join("");
+        });
+    }
+
+    function postSocial() {
+        const input = document.getElementById("social-text");
+        const text = input.value.trim();
+        if (!text) return alert("Please enter a promo message first!");
+
+        const statusEl = document.getElementById("top-user-status").innerText;
+        const userLabel = statusEl.includes("@") ? statusEl.split(" ")[0] : "@fuuroo_member";
+
+        const store = getSocialStore();
+        store.ig.unshift({ author: userLabel, text, likes: 1, time: "Just now" });
+        store.x.unshift({ author: userLabel, text, likes: 1, time: "Just now" });
+        store.fb.unshift({ author: userLabel, text, likes: 1, time: "Just now" });
+
+        localStorage.setItem("fuuroo_social_feeds", JSON.stringify(store));
+        loadSocial();
+        document.getElementById("social-status-box").innerHTML =
+            "<strong style='color:#006600;'>Published!</strong> Your promo shoutout is now live on the Instagram, X, and Facebook walls below.";
+    }
+
+    function likeSocialPost(net, idx) {
+        const store = getSocialStore();
+        if (store[net] && store[net][idx]) {
+            store[net][idx].likes += 1;
+            localStorage.setItem("fuuroo_social_feeds", JSON.stringify(store));
+            loadSocial();
+        }
+    }
+
+    function shareToExternal(platform) {
+        const text = document.getElementById("social-text").value.trim() || "Check out FuuRoo.com — Retro Web 2.0 Entertainment & Utilities Portal!";
+        const portalUrl = window.location.origin;
+        const statusBox = document.getElementById("social-status-box");
+
+        if (platform === "X") {
+            window.open(`https://x.com/intent/tweet?text=${encodeURIComponent(text + " " + portalUrl)}`, "_blank", "noopener");
+            statusBox.innerHTML = "Opened <strong>X (Twitter)</strong> share window with your promo message pre-filled!";
+        } else if (platform === "FB") {
+            window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(portalUrl)}&quote=${encodeURIComponent(text)}`, "_blank", "noopener");
+            statusBox.innerHTML = "Opened <strong>Facebook</strong> share dialog with FuuRoo's link!";
+        } else if (platform === "IG") {
+            navigator.clipboard.writeText(`${text} ${portalUrl}`).catch(() => {});
+            statusBox.innerHTML = "<strong style='color:#c13584;'>Copied to Clipboard!</strong> Ready to paste into your Instagram post or story caption.";
+        }
     }
 
     /* ================= RESTORE SESSION ON LOAD ================= */
