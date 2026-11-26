@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>FuuRoo.com - Free Games, Movies, Music &amp; Web Utilities!</title>
+    <script src="https://unpkg.com/@ruffle-rs/ruffle"></script>
     <style>
         /* ================= CLASSIC 2008 WEB 2.0 PORTAL CSS ================= */
         * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -478,7 +479,7 @@
             border: 2px solid #0054e3;
             border-radius: 5px 5px 0 0;
             width: 100%;
-            max-width: 720px;
+            max-width: 760px;
             box-shadow: 0 6px 20px rgba(0,0,0,0.5);
         }
 
@@ -493,7 +494,7 @@
         }
 
         .window-body { padding: 8px; }
-        .window-body iframe { width: 100%; height: 420px; border: 1px solid #7f9db9; background: #000; }
+        .window-body iframe { width: 100%; height: 500px; border: 1px solid #7f9db9; background: #000; }
 
         /* FOOTER */
         .portal-footer {
@@ -587,10 +588,9 @@
                 <div class="side-box-header">Top Hits Today</div>
                 <div class="side-box-content">
                     <ul class="dir-list">
-                        <li><a onclick="openPlayer('Metal Slug (1996)', 'https://archive.org/embed/arcade_mslug')">1. Metal Slug</a> <span class="dir-count">Game</span></li>
+                        <li><a onclick="openPlayer('Ben 10: Savage Pursuit', '/api/media/swf_proxy', 'swf')">1. Ben 10: Savage Pursuit</a> <span class="dir-count">Flash</span></li>
                         <li><a onclick="openPlayer('Night of the Living Dead', 'https://archive.org/embed/night_of_the_living_dead')">2. Living Dead</a> <span class="dir-count">Movie</span></li>
-                        <li><a onclick="openPlayer('Final Fight (1989)', 'https://archive.org/embed/arcade_ffight')">3. Final Fight</a> <span class="dir-count">Game</span></li>
-                        <li><a onclick="openPlayer('Superman (1941)', 'https://archive.org/embed/superman_mechanical_monsters')">4. Superman</a> <span class="dir-count">Video</span></li>
+                        <li><a onclick="openPlayer('Superman (1941)', 'https://archive.org/embed/superman_mechanical_monsters')">3. Superman</a> <span class="dir-count">Video</span></li>
                     </ul>
                 </div>
             </div>
@@ -600,10 +600,10 @@
                 <div class="side-box-header">Today's Portal Poll</div>
                 <div class="side-box-content">
                     <p style="margin-bottom:6px;"><strong>Favorite retro feature?</strong></p>
-                    <label style="display:block; margin-bottom:3px;"><input type="radio" name="poll" checked> Arcade Games</label>
+                    <label style="display:block; margin-bottom:3px;"><input type="radio" name="poll" checked> Flash Games</label>
                     <label style="display:block; margin-bottom:3px;"><input type="radio" name="poll"> Free Internet Radio</label>
                     <label style="display:block; margin-bottom:6px;"><input type="radio" name="poll"> Classic Movies</label>
-                    <button class="btn-classic" onclick="alert('Thanks for voting! Arcade Games is winning with 68%!')">Vote</button>
+                    <button class="btn-classic" onclick="alert('Thanks for voting! Flash Games is winning with 72%!')">Vote</button>
                 </div>
             </div>
 
@@ -689,7 +689,16 @@
 
                     <!-- 3. GAMES -->
                     <div id="msub-games" style="display:none;">
-                        <p style="margin-bottom:10px; color:#444;">Click any thumbnail to launch the playable arcade cabinet via <strong>Internet Archive Arcade API</strong>:</p>
+                        <div style="background:#fdf2f2; border:1px solid #d49b9b; padding:8px; margin-bottom:10px; display:flex; gap:6px; align-items:center; flex-wrap:wrap;">
+                            <strong>Flash Game Search:</strong>
+                            <input type="text" id="game-query" placeholder="e.g. Ben 10, Stickman, Bloons, Quiz..." style="flex:1; min-width:160px; padding:4px; border:1px solid #888; background:#ffffd9;">
+                            <select id="game-cat" style="padding:4px; border:1px solid #888; background:#fff;">
+                                <option value="softwarelibrary_flash">Flash Games (Y8 / Newgrounds)</option>
+                                <option value="internetarcade">Retro Arcade (MAME)</option>
+                                <option value="softwarelibrary_msdos_games">Classic MS-DOS</option>
+                            </select>
+                            <button class="btn-classic btn-red" onclick="loadGames()">Find Games</button>
+                        </div>
                         <div class="portal-grid" id="games-grid"></div>
                     </div>
                 </div>
@@ -824,6 +833,7 @@
             <button class="btn-classic btn-red" style="padding:2px 8px;" onclick="closePlayer()">X</button>
         </div>
         <div class="window-body">
+            <div id="ruffle-container" style="display:none; width:100%; height:500px; background:#000;"></div>
             <iframe id="win-frame" src="" allowfullscreen allow="autoplay; fullscreen"></iframe>
         </div>
     </div>
@@ -836,12 +846,6 @@
         { title: "Night of the Living Dead (1968)", tag: "Horror", embed: "https://archive.org/embed/night_of_the_living_dead", desc: "Classic 1968 public domain feature film." },
         { title: "Superman: Mechanical Monsters", tag: "Cartoon", embed: "https://archive.org/embed/superman_mechanical_monsters", desc: "1941 Fleischer animated classic." },
         { title: "Plan 9 from Outer Space (1959)", tag: "Sci-Fi", embed: "https://archive.org/embed/Plan_9_from_Outer_Space_1959", desc: "Cult classic retro sci-fi movie." }
-    ];
-
-    const GAMES = [
-        { title: "Metal Slug (1996)", tag: "Action", embed: "https://archive.org/embed/arcade_mslug", desc: "Classic run & gun arcade shooter." },
-        { title: "Final Fight (1989)", tag: "Beat 'Em Up", embed: "https://archive.org/embed/arcade_ffight", desc: "Street fighting arcade classic." },
-        { title: "Shock Troopers (1997)", tag: "Shooter", embed: "https://archive.org/embed/arcade_shocktro", desc: "Top-down action squad shooter." }
     ];
 
     function switchTab(tab) {
@@ -863,6 +867,7 @@
         document.getElementById("breadcrumb-text").innerText = names[tab];
 
         if (tab === "media") { renderMedia(); searchMusic(); }
+        if (tab === "utils") { loadStoredFakeData(); }
         if (tab === "social") { loadSocial(); }
     }
 
@@ -873,9 +878,9 @@
         if (!q) return;
         if (!loggedIn) return alert("Please sign in first to search the portal!");
         switchTab("media");
-        switchMediaSub("music");
-        document.getElementById("music-query").value = q;
-        searchMusic();
+        switchMediaSub("games");
+        document.getElementById("game-query").value = q;
+        loadGames();
     }
 
     /* ================= AUTH ================= */
@@ -931,29 +936,51 @@
     }
 
     function renderMedia() {
-        document.getElementById("video-grid").innerHTML = VIDEOS.map(v => `
-            <div class="item-card">
-                <div class="thumb-frame" style="background:#2b3a4a; color:#fff;">
-                    <span>[ MOVIE STREAM ]</span>
-                    <span class="play-badge">&#9654; Watch</span>
+        document.getElementById("video-grid").innerHTML = VIDEOS.map(v => {
+            const safeTitle = v.title.replace(/'/g, "\\'");
+            return `
+                <div class="item-card">
+                    <div class="thumb-frame" style="background:#2b3a4a; color:#fff;">
+                        <span>[ MOVIE STREAM ]</span>
+                        <span class="play-badge">&#9654; Watch</span>
+                    </div>
+                    <a class="item-title" onclick="openPlayer('${safeTitle}', '${v.embed}')">${v.title}</a>
+                    <div class="item-desc">Genre: ${v.tag} &bull; ${v.desc}</div>
+                    <button class="btn-classic btn-blue" onclick="openPlayer('${safeTitle}', '${v.embed}')">Watch Movie</button>
                 </div>
-                <a class="item-title" onclick="openPlayer('${v.title}', '${v.embed}')">${v.title}</a>
-                <div class="item-desc">Genre: ${v.tag} &bull; ${v.desc}</div>
-                <button class="btn-classic btn-blue" onclick="openPlayer('${v.title}', '${v.embed}')">Watch Movie</button>
-            </div>
-        `).join("");
+            `;
+        }).join("");
 
-        document.getElementById("games-grid").innerHTML = GAMES.map(g => `
-            <div class="item-card">
-                <div class="thumb-frame" style="background:#3a2b2b; color:#fff;">
-                    <span>[ ARCADE GAME ]</span>
-                    <span class="play-badge">&#9654; Play</span>
-                </div>
-                <a class="item-title" onclick="openPlayer('${g.title}', '${g.embed}')">${g.title}</a>
-                <div class="item-desc">Tag: ${g.tag} &bull; ${g.desc}</div>
-                <button class="btn-classic btn-red" onclick="openPlayer('${g.title}', '${g.embed}')">Play Now</button>
-            </div>
-        `).join("");
+        loadGames();
+    }
+
+    async function loadGames() {
+        const q = document.getElementById("game-query").value.trim();
+        const cat = document.getElementById("game-cat").value;
+        const grid = document.getElementById("games-grid");
+        grid.innerHTML = "<p>Loading Flash games from Internet Archive API...</p>";
+
+        try {
+            const res = await fetch(`/api/media/games?q=${encodeURIComponent(q)}&cat=${encodeURIComponent(cat)}`);
+            const data = await res.json();
+            grid.innerHTML = data.games.map(g => {
+                const safeTitle = g.title.replace(/'/g, "\\'");
+                const mode = g.type || "iframe";
+                return `
+                    <div class="item-card">
+                        <div class="thumb-frame">
+                            <img src="${g.thumb}" alt="${safeTitle}" onerror="this.style.display='none'">
+                            <span class="play-badge">&#9654; Play</span>
+                        </div>
+                        <a class="item-title" onclick="openPlayer('${safeTitle}', '${g.embed}', '${mode}')">${g.title}</a>
+                        <div class="item-desc">Year: ${g.tag} &bull; ${g.desc}</div>
+                        <button class="btn-classic btn-red" onclick="openPlayer('${safeTitle}', '${g.embed}', '${mode}')">Play Now</button>
+                    </div>
+                `;
+            }).join("");
+        } catch (e) {
+            grid.innerHTML = "<p>Could not reach games API.</p>";
+        }
     }
 
     async function searchMusic() {
@@ -986,16 +1013,37 @@
         audio.play();
     }
 
-    function openPlayer(title, url) {
+    function openPlayer(title, url, mode = "iframe") {
         if (!loggedIn) return alert("Please sign in first!");
         document.getElementById("win-title").innerText = title + " - FuuRoo Player";
-        document.getElementById("win-frame").src = url;
+        const frame = document.getElementById("win-frame");
+        const ruffleBox = document.getElementById("ruffle-container");
+
+        if (mode === "swf" && window.RufflePlayer) {
+            frame.style.display = "none";
+            frame.src = "";
+            ruffleBox.style.display = "block";
+            ruffleBox.innerHTML = "";
+            const ruffle = window.RufflePlayer.newest();
+            const player = ruffle.createPlayer();
+            player.style.width = "100%";
+            player.style.height = "100%";
+            ruffleBox.appendChild(player);
+            player.load(url);
+        } else {
+            ruffleBox.style.display = "none";
+            ruffleBox.innerHTML = "";
+            frame.style.display = "block";
+            frame.src = url;
+        }
+
         document.getElementById("player-modal").classList.add("open");
     }
 
     function closePlayer() {
         document.getElementById("player-modal").classList.remove("open");
         document.getElementById("win-frame").src = "";
+        document.getElementById("ruffle-container").innerHTML = "";
     }
 
     /* ================= UTILITIES (3B) ================= */
@@ -1004,6 +1052,7 @@
             document.getElementById("usub-" + s).style.display = (s === sub) ? "block" : "none";
             document.getElementById("utab-" + s).classList.toggle("active", s === sub);
         });
+        if (sub === "faker") loadStoredFakeData();
     }
 
     async function shortenUrl() {
@@ -1041,6 +1090,16 @@
         } catch (e) {
             out.innerText = `Ready for backend -> POST /api/utils/notify (${channel} to ${recipient})`;
         }
+    }
+
+    async function loadStoredFakeData() {
+        try {
+            const res = await fetch("/api/utils/faker");
+            const data = await res.json();
+            if (data.records && data.records.length > 0) {
+                renderTable(data.records);
+            }
+        } catch (e) {}
     }
 
     async function generateFakeData() {
@@ -1086,7 +1145,7 @@
     /* ================= SOCIAL (3C) ================= */
     function loadSocial() {
         document.getElementById("wall-ig").innerText = "Latest Photo: Retro gaming setup & classic movie night on FuuRoo.com! #Web2 #Throwback";
-        document.getElementById("wall-x").innerText = "Status Update: Just added 3 classic arcade games and free internet radio to FuuRoo!";
+        document.getElementById("wall-x").innerText = "Status Update: Just added Ben 10: Savage Pursuit to FuuRoo!";
         document.getElementById("wall-fb").innerText = "FuuRoo.com shared a link: Check out our new URL Shortener and Database Generator tools.";
     }
 
@@ -1114,6 +1173,7 @@
             if (data.logged_in && data.user) {
                 finishLogin(data.user, data.method || "Google OAuth 2.0");
             }
+            loadStoredFakeData();
         } catch (e) {}
     });
 </script>

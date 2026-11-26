@@ -1,13 +1,15 @@
 import os
 import requests
-from flask import Flask, render_template, request, jsonify, session, redirect, url_for
+from flask import Flask, render_template, request, jsonify, session, redirect, url_for, Response, send_file
 from google_auth_oauthlib.flow import Flow
+from routes_utilities import utils_bp
 
 # Allow OAuth 2.0 over http://localhost for local university demo
 os.environ["OAUTHLIB_INSECURE_TRANSPORT"] = "1"
 
 app = Flask(__name__)
 app.secret_key = "fuuroo_super_secret_web2_portal_key"
+app.register_blueprint(utils_bp)
 
 CLIENT_SECRETS_FILE = "client_secret.json"
 SCOPES = [
@@ -130,10 +132,29 @@ def get_videos():
 
 @app.route("/api/media/games")
 def get_games():
+    query = request.args.get("q", "").strip()
+    collection = request.args.get("cat", "softwarelibrary_flash").strip()
+
+    if not query:
+        return jsonify({
+            "games": [
+                {
+                    "id": "ben-10-savage-pursuit",
+                    "title": "Ben 10: Savage Pursuit",
+                    "tag": "2006",
+                    "thumb": "https://archive.org/services/img/Ben_10_Savage_Pursuit",
+                    "embed": "/api/media/swf_proxy",
+                    "type": "swf",
+                    "desc": "Classic Cartoon Network Flash action platformer.",
+                }
+            ]
+        })
+
     url = "https://archive.org/advancedsearch.php"
     params = {
-        "q": "identifier:(arcade_mslug OR arcade_ffight OR arcade_shocktro)",
-        "fl[]": ["identifier", "title", "year"],
+        "q": f"collection:({collection}) AND mediatype:(software) AND title:({query})",
+        "fl[]": ["identifier", "title", "year", "creator"],
+        "sort[]": "downloads desc",
         "output": "json",
         "rows": 3,
     }
@@ -142,10 +163,13 @@ def get_games():
         docs = res.get("response", {}).get("docs", [])
         games = [
             {
+                "id": d["identifier"],
                 "title": d.get("title", d["identifier"]),
-                "tag": str(d.get("year", "Arcade")),
+                "tag": str(d.get("year", "Flash SWF")),
+                "thumb": f"https://archive.org/services/img/{d['identifier']}",
                 "embed": f"https://archive.org/embed/{d['identifier']}",
-                "desc": "Playable Internet Archive MAME arcade cabinet.",
+                "type": "iframe",
+                "desc": f"Classic Flash game ({d.get('creator', 'Cartoon Network / Y8')}).",
             }
             for d in docs
         ]
@@ -155,6 +179,50 @@ def get_games():
         pass
 
     return jsonify({"games": []})
+
+
+@app.route("/api/media/swf_proxy")
+def swf_proxy():
+    local_swf = os.path.join(app.root_path, "static", "games", "ben10.swf")
+    if os.path.exists(local_swf):
+        return send_file(local_swf, mimetype="application/x-shockwave-flash")
+
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+        "Accept": "*/*",
+    }
+
+    # Dynamically search Internet Archive items and inspect their file lists for a real .swf
+    try:
+        search_res = requests.get(
+            "https://archive.org/advancedsearch.php",
+            params={
+                "q": 'title:("Ben 10" AND "Savage Pursuit")',
+                "fl[]": ["identifier"],
+                "output": "json",
+                "rows": 10,
+            },
+            headers=headers,
+            timeout=10,
+        ).json()
+
+        for doc in search_res.get("response", {}).get("docs", []):
+            ident = doc["identifier"]
+            meta = requests.get(f"https://archive.org/metadata/{ident}", headers=headers, timeout=10).json()
+            for file_info in meta.get("files", []):
+                fname = file_info.get("name", "")
+                if fname.lower().endswith(".swf"):
+                    swf_url = f"https://archive.org/download/{ident}/{requests.utils.quote(fname)}"
+                    r = requests.get(swf_url, headers=headers, allow_redirects=True, timeout=15)
+                    if r.status_code == 200 and r.content[:3] in (b"FWS", b"CWS", b"ZWS"):
+                        os.makedirs(os.path.dirname(local_swf), exist_ok=True)
+                        with open(local_swf, "wb") as f:
+                            f.write(r.content)
+                        return Response(r.content, content_type="application/x-shockwave-flash")
+    except Exception:
+        pass
+
+    return jsonify({"error": "No valid SWF binary found; place ben10.swf in static/games/"}), 502
 
 
 @app.route("/api/media/music")
