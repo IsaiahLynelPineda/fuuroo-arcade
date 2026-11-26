@@ -135,7 +135,7 @@ def logout():
 def get_videos():
     url = "https://archive.org/advancedsearch.php"
     params = {
-        "q": "identifier:(night_of_the_living_dead OR superman_mechanical_monsters OR Plan_9_from_Outer_Space_1959)",
+        "q": "identifier:(The_General_1926 OR Nosferatu_1922 OR Cops_1922)",
         "fl[]": ["identifier", "title", "year", "description"],
         "output": "json",
         "rows": 3,
