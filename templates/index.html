@@ -100,7 +100,7 @@
             padding: 4px 8px;
             font-family: Verdana, sans-serif;
             font-size: 11px;
-            width: 240px;
+            width: 250px;
             max-width: 100%;
             outline: none;
         }
@@ -412,6 +412,26 @@
             font-size: 11px;
         }
 
+        .util-block {
+            border: 1px solid #cccccc;
+            background: #fafafa;
+            border-radius: 3px;
+            padding: 12px;
+            margin-bottom: 14px;
+        }
+
+        .util-block:last-child {
+            margin-bottom: 0;
+        }
+
+        .util-block h3 {
+            font-size: 12px;
+            color: #1d4e85;
+            margin-bottom: 8px;
+            padding-bottom: 4px;
+            border-bottom: 1px solid #d8dee6;
+        }
+
         /* CLASSIC DATA TABLE (3B) */
         .classic-table-wrap {
             width: 100%;
@@ -548,7 +568,7 @@
         </div>
 
         <div class="header-search">
-            <input type="text" id="global-search" placeholder="Search Ben 10, GunBlood, Boss..." onkeydown="if(event.key==='Enter') quickSearch()">
+            <input type="text" id="global-search" placeholder="Search games, movies, music, tools..." onkeydown="if(event.key==='Enter') quickSearch()">
             <button onclick="quickSearch()">Go!</button>
         </div>
 
@@ -562,7 +582,7 @@
     <nav class="folder-tabs">
         <button class="folder-tab active" id="ftab-auth" onclick="switchTab('auth')">Login / OAuth 2.0</button>
         <button class="folder-tab" id="ftab-media" onclick="switchTab('media')">Media &amp; Entertainment (3A)</button>
-        <button class="folder-tab" id="ftab-utils" onclick="switchTab('utils')">Web Utilities &amp; DB (3B)</button>
+        <button class="folder-tab" id="ftab-utils" onclick="switchTab('utils')">Web Utilities (3B)</button>
         <button class="folder-tab" id="ftab-social" onclick="switchTab('social')">Social Hub: IG / X / FB (3C)</button>
     </nav>
 
@@ -591,9 +611,7 @@
                     <ul class="dir-list">
                         <li><a onclick="switchTab('auth')">1. Member Login</a> <span class="dir-count">(OAuth)</span></li>
                         <li><a onclick="switchTab('media')">2. Media &amp; Entertainment</a> <span class="dir-count">(3A)</span></li>
-                        <li><a onclick="openUtilDirect('url')">3a. URL Shortener</a> <span class="dir-count">(REST)</span></li>
-                        <li><a onclick="openUtilDirect('msg')">3b. SMS &amp; Email</a> <span class="dir-count">(API)</span></li>
-                        <li><a onclick="openUtilDirect('faker')">3c. Faker Records</a> <span class="dir-count" id="side-db-count">(0/20)</span></li>
+                        <li><a onclick="switchTab('utils')">3. Web Utilities</a> <span class="dir-count">(3B)</span></li>
                         <li><a onclick="switchTab('social')">4. IG / X / FB Wall</a> <span class="dir-count">(Live)</span></li>
                     </ul>
                 </div>
@@ -616,6 +634,19 @@
 
         <!-- MAIN CONTENT PANEL -->
         <main class="main-content">
+
+            <!-- ===================================================== -->
+            <!-- GLOBAL SEARCH RESULTS PANEL                           -->
+            <!-- ===================================================== -->
+            <section id="sec-search" class="portal-panel" style="display:none;">
+                <div class="panel-bar">
+                    <h2 id="search-results-heading">Portal Search Results</h2>
+                    <button class="btn-classic" onclick="switchTab('media')">Back to Media</button>
+                </div>
+                <div class="panel-inner" id="global-search-results">
+                    <p>Enter a keyword in the top search bar to search across Games, Movies, Music, and Web Utilities.</p>
+                </div>
+            </section>
 
             <!-- ===================================================== -->
             <!-- MODULE 1 & 2: LOGIN & OAUTH 2.0                       -->
@@ -683,22 +714,6 @@
 
                     <!-- 2. MUSIC -->
                     <div id="msub-music" style="display:none;">
-                        <div style="background:#eef4fc; border:1px solid #9bb4d4; padding:8px; margin-bottom:10px;">
-                            <div style="display:flex; gap:6px; align-items:center; margin-bottom:6px; flex-wrap:wrap;">
-                                <strong>Full-Track Radio Search:</strong>
-                                <input type="text" id="music-query" placeholder="Search full songs, artists, or genres..." onkeydown="if(event.key==='Enter') searchMusic()" style="flex:1; min-width:160px; padding:4px; border:1px solid #888; background:#ffffd9;">
-                                <button class="btn-classic btn-green" onclick="searchMusic()">&#9654; Tune Station</button>
-                            </div>
-                            <div style="font-size:10px; color:#444;">
-                                Full-Song Stations:
-                                <a onclick="tuneStation('featured')">Operation Ivy (Featured)</a> |
-                                <a onclick="tuneStation('ska punk')">Ska-Punk</a> |
-                                <a onclick="tuneStation('90s rock')">90s Rock</a> |
-                                <a onclick="tuneStation('synthwave')">Synthwave</a> |
-                                <a onclick="tuneStation('jazz')">Jazz</a>
-                            </div>
-                        </div>
-
                         <div id="now-playing-bar" style="display:none; background:#1d4e85; color:#fff; border:1px solid #0f2d4f; padding:8px; margin-bottom:10px; border-radius:3px;">
                             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
                                 <span id="now-playing-text" style="font-weight:bold;">Now Playing...</span>
@@ -719,22 +734,18 @@
             </section>
 
             <!-- ===================================================== -->
-            <!-- MODULE 3B: UTILITIES (URL, SMS/EMAIL, FAKER DB)       -->
+            <!-- MODULE 3B: UTILITIES (ALL IN ONE VIEW)                -->
             <!-- ===================================================== -->
             <section id="sec-utils" class="portal-panel" style="display:none;">
                 <div class="panel-bar">
-                    <h2>Web Utilities &amp; Database Generator</h2>
+                    <h2>Web Utilities: URL Shortening, SMS &amp; Email, Fake Data DB</h2>
                     <span style="color:#666;">Requirement #3B</span>
                 </div>
                 <div class="panel-inner">
-                    <div class="inner-tabs">
-                        <button class="inner-tab active" id="utab-url" onclick="switchUtilSub('url')">1. URL Shortener</button>
-                        <button class="inner-tab" id="utab-msg" onclick="switchUtilSub('msg')">2. SMS &amp; Email Sender</button>
-                        <button class="inner-tab" id="utab-faker" onclick="switchUtilSub('faker')">3. Fake Data DB (10 Fields / 20+ Rows)</button>
-                    </div>
 
                     <!-- 1. URL SHORTENER -->
-                    <div id="usub-url">
+                    <div class="util-block">
+                        <h3>1. URL Shortening</h3>
                         <div class="form-row">
                             <label>Paste Long Website URL:</label>
                             <input type="url" id="long-url" placeholder="https://www.example.com/very/long/project-link">
@@ -744,7 +755,8 @@
                     </div>
 
                     <!-- 2. SMS & EMAIL -->
-                    <div id="usub-msg" style="display:none;">
+                    <div class="util-block">
+                        <h3>2. SMS &amp; Email Sender</h3>
                         <div class="form-row">
                             <label>Service Type:</label>
                             <select id="msg-type">
@@ -765,9 +777,10 @@
                     </div>
 
                     <!-- 3. FAKER DATA (10 FIELDS -> 20+ RECORDS -> STORED) -->
-                    <div id="usub-faker" style="display:none;">
+                    <div class="util-block">
+                        <h3>3. Fake Data Generation (10 Fields &rarr; 20+ Records &rarr; Stored)</h3>
                         <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
-                            <span>Generates <strong>20+ records</strong> across <strong>10 fields</strong> and saves to SQLite (<code>fuuroo.db</code>).</span>
+                            <span>Generates <strong>20+ records</strong> across <strong>10 fields</strong> and saves to SQLite (<code>fuuroo.db</code>) — Stored count: <strong id="side-db-count">(0/20)</strong>.</span>
                             <button class="btn-classic btn-green" onclick="generateFakeData()">Generate &amp; Store 20 Records</button>
                         </div>
 
@@ -793,6 +806,7 @@
                             </table>
                         </div>
                     </div>
+
                 </div>
             </section>
 
@@ -862,11 +876,23 @@
         { title: "Cops (1922)", tag: "Comedy", embed: "https://archive.org/embed/Cops1922", desc: "Buster Keaton silent comedy short." }
     ];
 
+    const FEATURED_MUSIC_INDEX = [
+        { trackName: "Take Warning", artistName: "Operation Ivy", genre: "Ska-Punk (1989)", duration: "2:44", artwork: "https://archive.org/services/img/1989-operation-ivy-energy", previewUrl: "/api/media/audio_proxy?track=opivy-take-warning" },
+        { trackName: "Sound System", artistName: "Operation Ivy", genre: "Ska-Punk (1989)", duration: "2:14", artwork: "https://archive.org/services/img/1989-operation-ivy-energy", previewUrl: "/api/media/audio_proxy?track=opivy-sound-system" },
+        { trackName: "Knowledge", artistName: "Operation Ivy", genre: "Ska-Punk (1989)", duration: "1:42", artwork: "https://archive.org/services/img/1989-operation-ivy-energy", previewUrl: "/api/media/audio_proxy?track=opivy-knowledge" }
+    ];
+
+    const PORTAL_TOOLS = [
+        { title: "Web Utilities (URL, SMS/Email, Faker DB)", tag: "Utility (3B)", desc: "Shorten URLs, send SMS/Email, and generate 20+ SQLite records across 10 fields.", action: "switchTab('utils')", btn: "Open Utilities" },
+        { title: "Social Media Hub (IG / X / FB)", tag: "Social (3C)", desc: "Post updates across Instagram, X, and Facebook.", action: "switchTab('social')", btn: "Open Hub" }
+    ];
+
     function switchTab(tab) {
         if (tab !== "auth" && !loggedIn) {
             document.getElementById("auth-notice").innerHTML = "<strong style='color:#cc0000;'>Access Denied:</strong> Please Sign In or use Google OAuth first!";
             return;
         }
+        document.getElementById("sec-search").style.display = "none";
         ["auth", "media", "utils", "social"].forEach(t => {
             document.getElementById("sec-" + t).style.display = (t === tab) ? "block" : "none";
             document.getElementById("ftab-" + t).classList.toggle("active", t === tab);
@@ -875,7 +901,7 @@
         const names = {
             auth: "Member Login & OAuth 2.0",
             media: "Media & Entertainment (Movies, Music, Games)",
-            utils: "Web Utilities & SQLite Fake Data Generator",
+            utils: "Web Utilities (URL Shortening, SMS & Email, Fake Data DB)",
             social: "Social Media Hub (Instagram, X, Facebook)"
         };
         document.getElementById("breadcrumb-text").innerText = names[tab];
@@ -885,14 +911,126 @@
         if (tab === "social") { loadSocial(); }
     }
 
-    function openUtilDirect(sub) { switchTab("utils"); if (loggedIn) switchUtilSub(sub); }
-
-    function quickSearch() {
-        const q = document.getElementById("global-search").value.trim();
+    async function quickSearch() {
+        const rawQuery = document.getElementById("global-search").value.trim();
         if (!loggedIn) return alert("Please sign in first to search the portal!");
-        switchTab("media");
-        switchMediaSub("games");
-        loadGames(q);
+        if (!rawQuery) return;
+
+        const q = rawQuery.toLowerCase();
+
+        ["auth", "media", "utils", "social"].forEach(t => {
+            document.getElementById("sec-" + t).style.display = "none";
+            document.getElementById("ftab-" + t).classList.remove("active");
+        });
+        document.getElementById("sec-search").style.display = "block";
+        document.getElementById("breadcrumb-text").innerText = `Search Results for "${rawQuery}"`;
+        document.getElementById("search-results-heading").innerText = `Search Results for "${rawQuery}"`;
+
+        const container = document.getElementById("global-search-results");
+        container.innerHTML = `<p>Searching for <strong>${rawQuery}</strong>...</p>`;
+
+        const matchedVideos = VIDEOS.filter(v =>
+            v.title.toLowerCase().includes(q) ||
+            v.tag.toLowerCase().includes(q) ||
+            v.desc.toLowerCase().includes(q)
+        );
+
+        const matchedTools = PORTAL_TOOLS.filter(t =>
+            t.title.toLowerCase().includes(q) ||
+            t.tag.toLowerCase().includes(q) ||
+            t.desc.toLowerCase().includes(q)
+        );
+
+        const matchedMusic = FEATURED_MUSIC_INDEX.filter(t =>
+            t.trackName.toLowerCase().includes(q) ||
+            t.artistName.toLowerCase().includes(q) ||
+            t.genre.toLowerCase().includes(q)
+        );
+
+        let matchedGames = [];
+        try {
+            const gamesRes = await fetch(`/api/media/games?q=${encodeURIComponent(rawQuery)}`);
+            const gamesData = await gamesRes.json();
+            matchedGames = gamesData.games || [];
+        } catch (e) {}
+
+        let html = "";
+
+        if (matchedGames.length > 0) {
+            html += `<h3 style="margin:8px 0; color:#1d4e85;">Games (${matchedGames.length})</h3><div class="portal-grid" style="margin-bottom:14px;">`;
+            html += matchedGames.map(g => {
+                const safeTitle = g.title.replace(/'/g, "\\'");
+                const mode = g.type || "swf";
+                return `
+                    <div class="item-card">
+                        <div class="thumb-frame">
+                            <img src="${g.thumb}" alt="${safeTitle}" onerror="this.style.display='none'">
+                            <span class="play-badge">&#9654; Play</span>
+                        </div>
+                        <a class="item-title" onclick="openPlayer('${safeTitle}', '${g.embed}', '${mode}')">${g.title}</a>
+                        <div class="item-desc">Game (${g.tag}) &bull; ${g.desc}</div>
+                        <button class="btn-classic btn-red" onclick="openPlayer('${safeTitle}', '${g.embed}', '${mode}')">Play Now</button>
+                    </div>
+                `;
+            }).join("") + `</div>`;
+        }
+
+        if (matchedVideos.length > 0) {
+            html += `<h3 style="margin:8px 0; color:#1d4e85;">Movies &amp; Video (${matchedVideos.length})</h3><div class="portal-grid" style="margin-bottom:14px;">`;
+            html += matchedVideos.map(v => {
+                const safeTitle = v.title.replace(/'/g, "\\'");
+                return `
+                    <div class="item-card">
+                        <div class="thumb-frame" style="background:#2b3a4a; color:#fff;">
+                            <span>[ MOVIE STREAM ]</span>
+                            <span class="play-badge">&#9654; Watch</span>
+                        </div>
+                        <a class="item-title" onclick="openPlayer('${safeTitle}', '${v.embed}')">${v.title}</a>
+                        <div class="item-desc">Movie (${v.tag}) &bull; ${v.desc}</div>
+                        <button class="btn-classic btn-blue" onclick="openPlayer('${safeTitle}', '${v.embed}')">Watch Movie</button>
+                    </div>
+                `;
+            }).join("") + `</div>`;
+        }
+
+        if (matchedMusic.length > 0) {
+            html += `<h3 style="margin:8px 0; color:#1d4e85;">Music &amp; Radio (${matchedMusic.length})</h3><div class="portal-grid" style="margin-bottom:14px;">`;
+            html += matchedMusic.map(t => {
+                const safeTrack = t.trackName.replace(/'/g, "\\'");
+                const safeArtist = t.artistName.replace(/'/g, "\\'");
+                return `
+                    <div class="item-card">
+                        <div class="thumb-frame">
+                            <img src="${t.artwork}" alt="${safeTrack}" onerror="this.style.display='none'">
+                            <span class="play-badge">&#9654; ${t.duration}</span>
+                        </div>
+                        <a class="item-title" onclick="switchTab('media'); switchMediaSub('music'); playRadio('${t.previewUrl}', '${safeTrack}', '${safeArtist}')">${t.trackName}</a>
+                        <div class="item-desc">${t.artistName} &bull; ${t.genre}</div>
+                        <button class="btn-classic btn-green" onclick="switchTab('media'); switchMediaSub('music'); playRadio('${t.previewUrl}', '${safeTrack}', '${safeArtist}')">&#9654; Play Full Song</button>
+                    </div>
+                `;
+            }).join("") + `</div>`;
+        }
+
+        if (matchedTools.length > 0) {
+            html += `<h3 style="margin:8px 0; color:#1d4e85;">Web Utilities &amp; Portal Sections (${matchedTools.length})</h3><div class="portal-grid" style="margin-bottom:14px;">`;
+            html += matchedTools.map(tool => `
+                <div class="item-card">
+                    <div class="thumb-frame" style="background:#1f5c99; color:#fff;">
+                        <span>[ ${tool.tag.toUpperCase()} ]</span>
+                    </div>
+                    <a class="item-title" onclick="${tool.action}">${tool.title}</a>
+                    <div class="item-desc">${tool.desc}</div>
+                    <button class="btn-classic btn-blue" onclick="${tool.action}">${tool.btn}</button>
+                </div>
+            `).join("") + `</div>`;
+        }
+
+        if (!html) {
+            html = `<div class="notice-box">No exact matches found for <strong>"${rawQuery}"</strong>.</div>`;
+        }
+
+        container.innerHTML = html;
     }
 
     /* ================= AUTH ================= */
@@ -997,21 +1135,15 @@
         }
     }
 
-    function tuneStation(genre) {
-        document.getElementById("music-query").value = (genre === "featured") ? "" : genre;
-        searchMusic(genre);
-    }
-
     async function searchMusic(overrideQuery = null) {
-        const inputVal = document.getElementById("music-query").value.trim();
-        const q = overrideQuery !== null ? overrideQuery : (inputVal || "featured");
+        const q = overrideQuery !== null ? overrideQuery : "featured";
         const grid = document.getElementById("music-grid");
-        grid.innerHTML = "<p>Tuning radio station via FuuRoo Music API...</p>";
+        grid.innerHTML = "<p>Loading music tracks...</p>";
         try {
             const res = await fetch(`/api/media/music?q=${encodeURIComponent(q)}`);
             const data = await res.json();
             if (!data.results || data.results.length === 0) {
-                grid.innerHTML = "<p>No full tracks found for that search. Click Operation Ivy (Featured)!</p>";
+                grid.innerHTML = "<p>No tracks available.</p>";
                 return;
             }
             grid.innerHTML = data.results.map(t => {
@@ -1078,14 +1210,6 @@
     }
 
     /* ================= UTILITIES (3B) ================= */
-    function switchUtilSub(sub) {
-        ["url", "msg", "faker"].forEach(s => {
-            document.getElementById("usub-" + s).style.display = (s === sub) ? "block" : "none";
-            document.getElementById("utab-" + s).classList.toggle("active", s === sub);
-        });
-        if (sub === "faker") loadStoredFakeData();
-    }
-
     async function shortenUrl() {
         const url = document.getElementById("long-url").value.trim();
         if (!url) return;
