@@ -162,54 +162,22 @@ def get_videos():
 
 @app.route("/api/media/games")
 def get_games():
-    query = request.args.get("q", "").strip()
-    collection = request.args.get("cat", "softwarelibrary_flash").strip()
+    query = request.args.get("q", "").strip().lower()
 
-    if not query:
-        return jsonify({
-            "games": [
-                {
-                    "id": g["id"],
-                    "title": g["title"],
-                    "tag": g["tag"],
-                    "thumb": f"https://archive.org/services/img/{g['archive_id']}",
-                    "embed": f"/api/media/swf_proxy?game={key}",
-                    "type": "swf",
-                    "desc": g["desc"],
-                }
-                for key, g in FEATURED_GAMES.items()
-            ]
-        })
-
-    url = "https://archive.org/advancedsearch.php"
-    params = {
-        "q": f"collection:({collection}) AND mediatype:(software) AND title:({query})",
-        "fl[]": ["identifier", "title", "year", "creator"],
-        "sort[]": "downloads desc",
-        "output": "json",
-        "rows": 3,
-    }
-    try:
-        res = requests.get(url, params=params, timeout=8).json()
-        docs = res.get("response", {}).get("docs", [])
-        games = [
-            {
-                "id": d["identifier"],
-                "title": d.get("title", d["identifier"]),
-                "tag": str(d.get("year", "Flash SWF")),
-                "thumb": f"https://archive.org/services/img/{d['identifier']}",
-                "embed": f"https://archive.org/embed/{d['identifier']}",
-                "type": "iframe",
-                "desc": f"Classic Flash game ({d.get('creator', 'Cartoon Network / Y8')}).",
-            }
-            for d in docs
-        ]
-        if games:
-            return jsonify({"games": games})
-    except Exception:
-        pass
-
-    return jsonify({"games": []})
+    results = [
+        {
+            "id": g["id"],
+            "title": g["title"],
+            "tag": g["tag"],
+            "thumb": f"https://archive.org/services/img/{g['archive_id']}",
+            "embed": f"/api/media/swf_proxy?game={key}",
+            "type": "swf",
+            "desc": g["desc"],
+        }
+        for key, g in FEATURED_GAMES.items()
+        if not query or query in g["title"].lower() or query in g["desc"].lower() or query in key
+    ]
+    return jsonify({"games": results})
 
 
 @app.route("/api/media/swf_proxy")
