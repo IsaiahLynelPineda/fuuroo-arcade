@@ -49,6 +49,45 @@ FEATURED_GAMES = {
     },
 }
 
+FEATURED_TRACKS = [
+    {
+        "trackId": "opivy-take-warning",
+        "trackName": "Take Warning",
+        "artistName": "Operation Ivy",
+        "genre": "Ska-Punk (1989)",
+        "duration": "2:44",
+        "archive_id": "1989-operation-ivy-energy",
+        "keyword": "take warning",
+        "cache_file": "opivy_take_warning.mp3",
+        "artwork": "https://archive.org/services/img/1989-operation-ivy-energy",
+        "previewUrl": "/api/media/audio_proxy?track=opivy-take-warning",
+    },
+    {
+        "trackId": "opivy-sound-system",
+        "trackName": "Sound System",
+        "artistName": "Operation Ivy",
+        "genre": "Ska-Punk (1989)",
+        "duration": "2:14",
+        "archive_id": "1989-operation-ivy-energy",
+        "keyword": "sound system",
+        "cache_file": "opivy_sound_system.mp3",
+        "artwork": "https://archive.org/services/img/1989-operation-ivy-energy",
+        "previewUrl": "/api/media/audio_proxy?track=opivy-sound-system",
+    },
+    {
+        "trackId": "opivy-knowledge",
+        "trackName": "Knowledge",
+        "artistName": "Operation Ivy",
+        "genre": "Ska-Punk (1989)",
+        "duration": "1:42",
+        "archive_id": "1989-operation-ivy-energy",
+        "keyword": "knowledge",
+        "cache_file": "opivy_knowledge.mp3",
+        "artwork": "https://archive.org/services/img/1989-operation-ivy-energy",
+        "previewUrl": "/api/media/audio_proxy?track=opivy-knowledge",
+    },
+]
+
 
 # ================= MAIN PORTAL ROUTE =================
 @app.route("/")
@@ -135,7 +174,7 @@ def logout():
 def get_videos():
     url = "https://archive.org/advancedsearch.php"
     params = {
-        "q": "identifier:(The_General_1926 OR Nosferatu_1922 OR Cops_1922)",
+        "q": "identifier:(TheGeneral1926 OR PhantasmagoriaTheater-Nosferatu1922909 OR Cops1922)",
         "fl[]": ["identifier", "title", "year", "description"],
         "output": "json",
         "rows": 3,
@@ -148,7 +187,7 @@ def get_videos():
                 "title": d.get("title", d["identifier"]),
                 "tag": str(d.get("year", "Classic")),
                 "embed": f"https://archive.org/embed/{d['identifier']}",
-                "desc": (d.get("description") or "Classic public domain film.")[:85] + "...",
+                "desc": (d.get("description") or "Classic silent public domain film.")[:85] + "...",
             }
             for d in docs
         ]
@@ -194,7 +233,6 @@ def swf_proxy():
         "Accept": "*/*",
     }
 
-    # Check the exact Archive.org identifier first, then fall back to title search
     candidate_ids = [game_cfg["archive_id"]]
     try:
         search_res = requests.get(
@@ -238,50 +276,111 @@ def get_music():
     query = request.args.get("q", "").strip()
     headers = {"Accept": "application/json", "User-Agent": "FuuRooPortal/1.0"}
 
-    # Step 1: Discover an active Audius API host (fallback to public gateway)
-    host = "https://discoveryprovider.audius.co"
-    try:
-        hosts_res = requests.get("https://api.audius.co", headers=headers, timeout=5).json()
-        if hosts_res.get("data"):
-            host = hosts_res["data"][0]
-    except Exception:
-        pass
+    # Default / Featured: return Operation Ivy tracks immediately
+    if not query or query.lower() in ("featured", "operation ivy", "take warning", "ska", "punk"):
+        return jsonify({"results": FEATURED_TRACKS})
 
-    # Step 2: Query trending tracks (default) or search tracks by keyword
+    # Otherwise search Internet Archive Audio for full-length MP3 tracks
     try:
-        if not query or query.lower() == "trending":
-            endpoint = f"{host}/v1/tracks/trending"
-            params = {"app_name": "FuuRooPortal", "limit": 6}
-        else:
-            endpoint = f"{host}/v1/tracks/search"
-            params = {"query": query, "app_name": "FuuRooPortal", "limit": 6}
-
-        res = requests.get(endpoint, params=params, headers=headers, timeout=8).json()
-        raw_tracks = res.get("data", [])
+        search_res = requests.get(
+            "https://archive.org/advancedsearch.php",
+            params={
+                "q": f"mediatype:(audio) AND ({query})",
+                "fl[]": ["identifier", "title", "creator", "year"],
+                "sort[]": "downloads desc",
+                "output": "json",
+                "rows": 6,
+            },
+            headers=headers,
+            timeout=8,
+        ).json()
+        docs = search_res.get("response", {}).get("docs", [])
 
         tracks = []
-        for item in raw_tracks:
-            track_id = item.get("id")
-            if not track_id or not item.get("is_streamable", True):
+        for doc in docs:
+            ident = doc["identifier"]
+            meta = requests.get(f"https://archive.org/metadata/{ident}", headers=headers, timeout=6).json()
+            mp3_file = next(
+                (f for f in meta.get("files", []) if f.get("name", "").lower().endswith(".mp3")),
+                None,
+            )
+            if not mp3_file:
                 continue
-            artwork_obj = item.get("artwork") or {}
-            artwork = artwork_obj.get("480x480") or artwork_obj.get("150x150") or ""
-            duration = int(item.get("duration") or 0)
-            mins, secs = divmod(duration, 60)
 
+            fname = mp3_file["name"]
+            length_raw = mp3_file.get("length", "Full")
             tracks.append({
-                "trackId": track_id,
-                "trackName": item.get("title", "Untitled Track"),
-                "artistName": (item.get("user") or {}).get("name", "Independent Artist"),
-                "genre": item.get("genre") or "Full Track",
-                "duration": f"{mins}:{secs:02d}" if duration else "Full",
-                "artwork": artwork,
-                "previewUrl": f"{host}/v1/tracks/{track_id}/stream?app_name=FuuRooPortal",
+                "trackId": ident,
+                "trackName": doc.get("title") or fname.replace(".mp3", ""),
+                "artistName": doc.get("creator") or "Internet Archive Audio",
+                "genre": str(doc.get("year") or "Full MP3"),
+                "duration": str(length_raw).split(".")[0],
+                "artwork": f"https://archive.org/services/img/{ident}",
+                "previewUrl": f"/api/media/audio_proxy?ident={ident}&file={requests.utils.quote(fname)}",
             })
+            if len(tracks) >= 6:
+                break
 
-        return jsonify({"results": tracks[:6]})
-    except Exception as e:
-        return jsonify({"results": [], "error": str(e)}), 502
+        return jsonify({"results": tracks or FEATURED_TRACKS})
+    except Exception:
+        return jsonify({"results": FEATURED_TRACKS})
+
+
+@app.route("/api/media/audio_proxy")
+def audio_proxy():
+    track_id = request.args.get("track", "").strip()
+    ident = request.args.get("ident", "").strip()
+    fname = request.args.get("file", "").strip()
+
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+        "Accept": "*/*",
+    }
+
+    # Case A: Featured track (e.g., Operation Ivy) -> look up exact MP3 filename & cache locally
+    featured = next((t for t in FEATURED_TRACKS if t["trackId"] == track_id), None)
+    if featured:
+        local_mp3 = os.path.join(app.root_path, "static", "music", featured["cache_file"])
+        if os.path.exists(local_mp3):
+            return send_file(local_mp3, mimetype="audio/mpeg", conditional=True)
+
+        try:
+            meta = requests.get(
+                f"https://archive.org/metadata/{featured['archive_id']}",
+                headers=headers,
+                timeout=10,
+            ).json()
+            mp3_files = [
+                f.get("name", "")
+                for f in meta.get("files", [])
+                if f.get("name", "").lower().endswith(".mp3")
+            ]
+            matched = next(
+                (name for name in mp3_files if featured["keyword"] in name.lower()),
+                mp3_files[0] if mp3_files else None,
+            )
+            if matched:
+                mp3_url = f"https://archive.org/download/{featured['archive_id']}/{requests.utils.quote(matched)}"
+                r = requests.get(mp3_url, headers=headers, allow_redirects=True, timeout=20)
+                if r.status_code == 200 and len(r.content) > 10000:
+                    os.makedirs(os.path.dirname(local_mp3), exist_ok=True)
+                    with open(local_mp3, "wb") as f:
+                        f.write(r.content)
+                    return send_file(local_mp3, mimetype="audio/mpeg", conditional=True)
+        except Exception as e:
+            return jsonify({"error": str(e)}), 502
+
+    # Case B: Dynamic search result from Internet Archive
+    if ident and fname:
+        try:
+            mp3_url = f"https://archive.org/download/{ident}/{requests.utils.quote(fname)}"
+            r = requests.get(mp3_url, headers=headers, allow_redirects=True, timeout=20)
+            if r.status_code == 200:
+                return Response(r.content, content_type="audio/mpeg")
+        except Exception as e:
+            return jsonify({"error": str(e)}), 502
+
+    return jsonify({"error": "Audio track not found"}), 404
 
 
 if __name__ == "__main__":

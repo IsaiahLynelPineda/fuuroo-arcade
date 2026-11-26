@@ -591,7 +591,7 @@
                         <li><a onclick="openPlayer('Ben 10: Savage Pursuit', '/api/media/swf_proxy?game=ben10', 'swf')">1. Ben 10: Savage Pursuit</a> <span class="dir-count">Flash</span></li>
                         <li><a onclick="openPlayer('GunBlood', '/api/media/swf_proxy?game=gunblood', 'swf')">2. GunBlood</a> <span class="dir-count">Flash</span></li>
                         <li><a onclick="openPlayer('Whack Your Boss (17 Ways)', '/api/media/swf_proxy?game=whackyourboss', 'swf')">3. Whack Your Boss</a> <span class="dir-count">Flash</span></li>
-                        <li><a onclick="openPlayer('Night of the Living Dead', 'https://archive.org/embed/night_of_the_living_dead')">4. Living Dead</a> <span class="dir-count">Movie</span></li>
+                        <li><a onclick="switchTab('media'); switchMediaSub('music'); playRadio('/api/media/audio_proxy?track=opivy-take-warning', 'Take Warning', 'Operation Ivy')">4. Take Warning (Op Ivy)</a> <span class="dir-count">MP3</span></li>
                     </ul>
                 </div>
             </div>
@@ -687,12 +687,11 @@
                             </div>
                             <div style="font-size:10px; color:#444;">
                                 Full-Song Stations:
-                                <a onclick="tuneStation('trending')">Top Trending</a> |
-                                <a onclick="tuneStation('pop')">Pop</a> |
-                                <a onclick="tuneStation('hip hop')">Hip-Hop</a> |
-                                <a onclick="tuneStation('electronic')">Electronic</a> |
-                                <a onclick="tuneStation('lo-fi')">Lo-Fi</a> |
-                                <a onclick="tuneStation('rock')">Rock</a>
+                                <a onclick="tuneStation('featured')">Operation Ivy (Featured)</a> |
+                                <a onclick="tuneStation('ska punk')">Ska-Punk</a> |
+                                <a onclick="tuneStation('90s rock')">90s Rock</a> |
+                                <a onclick="tuneStation('synthwave')">Synthwave</a> |
+                                <a onclick="tuneStation('jazz')">Jazz</a>
                             </div>
                         </div>
 
@@ -877,7 +876,7 @@
         };
         document.getElementById("breadcrumb-text").innerText = names[tab];
 
-        if (tab === "media") { renderMedia(); searchMusic("trending"); }
+        if (tab === "media") { renderMedia(); searchMusic("featured"); }
         if (tab === "utils") { loadStoredFakeData(); }
         if (tab === "social") { loadSocial(); }
     }
@@ -995,20 +994,20 @@
     }
 
     function tuneStation(genre) {
-        document.getElementById("music-query").value = (genre === "trending") ? "" : genre;
+        document.getElementById("music-query").value = (genre === "featured") ? "" : genre;
         searchMusic(genre);
     }
 
     async function searchMusic(overrideQuery = null) {
         const inputVal = document.getElementById("music-query").value.trim();
-        const q = overrideQuery !== null ? overrideQuery : (inputVal || "trending");
+        const q = overrideQuery !== null ? overrideQuery : (inputVal || "featured");
         const grid = document.getElementById("music-grid");
-        grid.innerHTML = "<p>Loading full-length tracks from Audius Open Audio API...</p>";
+        grid.innerHTML = "<p>Tuning radio station via FuuRoo Music API...</p>";
         try {
             const res = await fetch(`/api/media/music?q=${encodeURIComponent(q)}`);
             const data = await res.json();
             if (!data.results || data.results.length === 0) {
-                grid.innerHTML = "<p>No full tracks found for that search. Try another artist or click Top Trending!</p>";
+                grid.innerHTML = "<p>No full tracks found for that search. Click Operation Ivy (Featured)!</p>";
                 return;
             }
             grid.innerHTML = data.results.map(t => {
