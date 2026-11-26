@@ -910,7 +910,10 @@
         }
     }
 
-    function logoutUser() {
+    async function logoutUser() {
+        try {
+            await fetch("/logout", { method: "POST" });
+        } catch (e) {}
         loggedIn = false;
         document.getElementById("top-user-status").innerText = "Guest (Not Logged In)";
         document.getElementById("top-user-status").style.color = "#cc0000";
@@ -1102,6 +1105,17 @@
         document.getElementById("wall-fb").innerHTML = `<strong>[Just Posted]</strong> ${content}`;
         document.getElementById("social-text").value = "";
     }
+
+    /* ================= RESTORE SESSION ON LOAD ================= */
+    window.addEventListener("DOMContentLoaded", async () => {
+        try {
+            const res = await fetch("/api/session");
+            const data = await res.json();
+            if (data.logged_in && data.user) {
+                finishLogin(data.user, data.method || "Google OAuth 2.0");
+            }
+        } catch (e) {}
+    });
 </script>
 </body>
 </html>
