@@ -16,6 +16,7 @@ SCOPES = [
     "openid",
     "https://www.googleapis.com/auth/userinfo.email",
     "https://www.googleapis.com/auth/userinfo.profile",
+    "https://www.googleapis.com/auth/gmail.send",
 ]
 REDIRECT_URI = "http://localhost:5000/callback"
 
@@ -160,12 +161,16 @@ def oauth_callback():
     email = userinfo_res.get("email", "google_user@gmail.com")
     session["user"] = email
     session["method"] = "Google OAuth 2.0"
+    os.environ["GOOGLE_OAUTH_TOKEN"] = credentials.token
+    os.environ["GOOGLE_OAUTH_EMAIL"] = email
     return redirect(url_for("index"))
 
 
 @app.route("/logout", methods=["POST"])
 def logout():
     session.clear()
+    os.environ.pop("GOOGLE_OAUTH_TOKEN", None)
+    os.environ.pop("GOOGLE_OAUTH_EMAIL", None)
     return jsonify({"success": True})
 
 

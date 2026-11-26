@@ -1,265 +1,226 @@
-import hashlib
+import base64
 import os
 import smtplib
 import sqlite3
 from datetime import datetime
 from email.message import EmailMessage
-from flask import Blueprint, request, jsonify, redirect, url_for
 import requests
 from faker import Faker
+from flask import Blueprint, request, jsonify
 
-utils_bp = Blueprint("utils_bp", __name__)
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except ImportError:
+    pass
+
+utils_bp = Blueprint("utils", __name__)
 fake = Faker()
-DB_PATH = "fuuroo.db"
+DB_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "fuuroo.db")
+
+
+def get_db():
+    conn = sqlite3.connect(DB_PATH)
+    conn.row_factory = sqlite3.Row
+    return conn
 
 
 def init_db():
-    conn = sqlite3.connect(DB_PATH)
-    cur = conn.cursor()
-    cur.execute("""
-        CREATE TABLE IF NOT EXISTS fake_members (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            full_name TEXT NOT NULL,
-            username TEXT NOT NULL,
-            email TEXT NOT NULL,
-            phone TEXT NOT NULL,
-            city TEXT NOT NULL,
-            country TEXT NOT NULL,
-            company TEXT NOT NULL,
-            job_title TEXT NOT NULL,
-            joined_date TEXT NOT NULL
-        )
-    """)
-    cur.execute("""
-        CREATE TABLE IF NOT EXISTS notifications_log (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            channel TEXT NOT NULL,
-            recipient TEXT NOT NULL,
-            message TEXT NOT NULL,
-            sent_at TEXT NOT NULL
-        )
-    """)
-    cur.execute("""
-        CREATE TABLE IF NOT EXISTS short_urls (
-            code TEXT PRIMARY KEY,
-            long_url TEXT NOT NULL,
-            created_at TEXT NOT NULL
-        )
-    """)
-    conn.commit()
-    conn.close()
+    with get_db() as conn:
+        conn.execute("""
+            CREATE TABLE IF NOT EXISTS fake_users (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                full_name TEXT NOT NULL,
+                username TEXT NOT NULL,
+                email TEXT NOT NULL,
+                phone TEXT NOT NULL,
+                city TEXT NOT NULL,
+                country TEXT NOT NULL,
+                company TEXT NOT NULL,
+                job_title TEXT NOT NULL,
+                joined_date TEXT NOT NULL
+            )
+        """)
+        conn.commit()
 
 
 init_db()
 
 
-def send_real_email(recipient: str, message: str):
-    smtp_host = os.getenv("SMTP_HOST", "smtp.gmail.com")
-    smtp_port = int(os.getenv("SMTP_PORT", "587"))
-    smtp_user = os.getenv("SMTP_USER", "").strip()
-    smtp_pass = os.getenv("SMTP_PASS", "").strip()
-    smtp_from = os.getenv("SMTP_FROM", smtp_user).strip()
-
-    if not smtp_user or not smtp_pass:
-        raise RuntimeError("Missing SMTP_USER or SMTP_PASS environment variables.")
-
-    msg = EmailMessage()
-    msg["Subject"] = "FuuRoo Portal Notification"
-    msg["From"] = smtp_from
-    msg["To"] = recipient
-    msg.set_content(message)
-
-    with smtplib.SMTP(smtp_host, smtp_port, timeout=15) as server:
-        server.starttls()
-        server.login(smtp_user, smtp_pass)
-        server.send_message(msg)
-
-
-def send_real_sms(recipient: str, message: str):
-    semaphore_key = os.getenv("SEMAPHORE_API_KEY", "").strip()
-    if semaphore_key:
-        sender_name = os.getenv("SEMAPHORE_SENDER_NAME", "FuuRoo").strip()
-        res = requests.post(
-            "https://api.semaphore.co/api/v4/messages",
-            data={
-                "apikey": semaphore_key,
-                "number": recipient,
-                "message": message,
-                "sendername": sender_name,
-            },
-            timeout=15,
-        )
-        res.raise_for_status()
-        return
-
-    account_sid = os.getenv("TWILIO_ACCOUNT_SID", "").strip()
-    auth_token = os.getenv("TWILIO_AUTH_TOKEN", "").strip()
-    from_number = os.getenv("TWILIO_FROM_NUMBER", "").strip()
-    if account_sid and auth_token and from_number:
-        res = requests.post(
-            f"https://api.twilio.com/2010-04-01/Accounts/{account_sid}/Messages.json",
-            data={
-                "From": from_number,
-                "To": recipient,
-                "Body": message,
-            },
-            auth=(account_sid, auth_token),
-            timeout=15,
-        )
-        res.raise_for_status()
-        return
-
-    raise RuntimeError("Missing SMS gateway credentials (set SEMAPHORE_API_KEY or Twilio variables).")
-
-
-# ================= 3B-1: URL SHORTENER REST API =================
+# ================= 3B-1: URL SHORTENER =================
 @utils_bp.route("/api/utils/shorten", methods=["POST"])
 def shorten_url():
-    data = request.get_json(silent=True) or {}
-    long_url = (data.get("url") or "").strip()
+    data = request.get_json() or {}
+    long_url = data.get("url", "").strip()
     if not long_url:
         return jsonify({"error": "URL is required"}), 400
 
     if not long_url.startswith(("http://", "https://")):
         long_url = "https://" + long_url
 
-    headers = {"User-Agent": "Mozilla/5.0"}
-
     try:
-        res = requests.get(
+        r = requests.get(
             "https://is.gd/create.php",
             params={"format": "simple", "url": long_url},
-            headers=headers,
-            timeout=6,
+            timeout=8,
         )
-        short_link = res.text.strip()
-        if res.status_code == 200 and short_link.startswith(("http://", "https://")):
-            return jsonify({"short_url": short_link, "original": long_url, "provider": "is.gd"})
+        if r.status_code == 200 and r.text.startswith("http"):
+            return jsonify({"short_url": r.text.strip(), "original_url": long_url})
     except Exception:
         pass
 
     try:
-        res = requests.get(
+        r = requests.get(
             "https://tinyurl.com/api-create.php",
             params={"url": long_url},
-            headers=headers,
-            timeout=6,
+            timeout=8,
         )
-        short_link = res.text.strip()
-        if res.status_code == 200 and short_link.startswith(("http://", "https://")):
-            return jsonify({"short_url": short_link, "original": long_url, "provider": "tinyurl"})
-    except Exception:
-        pass
+        if r.status_code == 200 and r.text.startswith("http"):
+            return jsonify({"short_url": r.text.strip(), "original_url": long_url})
+    except Exception as e:
+        return jsonify({"error": f"Shortener API unreachable: {e}"}), 502
 
-    try:
-        res = requests.post(
-            "https://cleanuri.com/api/v1/shorten",
-            data={"url": long_url},
-            headers=headers,
-            timeout=6,
-        )
-        short_link = (res.json() or {}).get("result_url", "").strip()
-        if res.status_code == 200 and short_link.startswith(("http://", "https://")):
-            return jsonify({"short_url": short_link, "original": long_url, "provider": "cleanuri"})
-    except Exception:
-        pass
-
-    code = hashlib.sha256(long_url.encode("utf-8")).hexdigest()[:6]
-    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    conn = sqlite3.connect(DB_PATH)
-    cur = conn.cursor()
-    cur.execute(
-        "INSERT OR IGNORE INTO short_urls (code, long_url, created_at) VALUES (?, ?, ?)",
-        (code, long_url, timestamp),
-    )
-    conn.commit()
-    conn.close()
-
-    short_url = url_for("utils_bp.redirect_short_url", code=code, _external=True)
-    return jsonify({"short_url": short_url, "original": long_url, "provider": "local-fallback"})
+    return jsonify({"error": "Could not shorten URL"}), 502
 
 
-@utils_bp.route("/s/<code>")
-def redirect_short_url(code):
-    conn = sqlite3.connect(DB_PATH)
-    conn.row_factory = sqlite3.Row
-    cur = conn.cursor()
-    cur.execute("SELECT long_url FROM short_urls WHERE code = ?", (code,))
-    row = cur.fetchone()
-    conn.close()
-
-    if not row:
-        return "Short URL not found", 404
-    return redirect(row["long_url"])
-
-
-# ================= 3B-2: SMS & EMAIL SENDER API =================
+# ================= 3B-2: REAL EMAIL (GMAIL OAUTH API / SMTP) & SMS (SEMAPHORE) =================
 @utils_bp.route("/api/utils/notify", methods=["POST"])
 def send_notification():
-    data = request.get_json(silent=True) or {}
-    channel = (data.get("channel") or "EMAIL").upper().strip()
-    recipient = (data.get("recipient") or "").strip()
-    message = (data.get("message") or "").strip()
+    data = request.get_json() or {}
+    channel = data.get("channel", "EMAIL").strip().upper()
+    recipient = data.get("recipient", "").strip()
+    message = data.get("message", "").strip()
 
     if not recipient or not message:
-        return jsonify({"status": "Error: Recipient and message are required."}), 400
-
-    try:
-        if channel == "EMAIL":
-            send_real_email(recipient, message)
-        elif channel == "SMS":
-            send_real_sms(recipient, message)
-        else:
-            return jsonify({"status": f"Error: Unsupported channel '{channel}'."}), 400
-    except Exception as exc:
-        return jsonify({"status": f"Error sending {channel}: {exc}"}), 500
+        return jsonify({"status": f"Error sending {channel}: Recipient and message are required."}), 400
 
     timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    conn = sqlite3.connect(DB_PATH)
-    cur = conn.cursor()
-    cur.execute(
-        "INSERT INTO notifications_log (channel, recipient, message, sent_at) VALUES (?, ?, ?, ?)",
-        (channel, recipient, message, timestamp),
-    )
-    conn.commit()
-    conn.close()
 
-    return jsonify({
-        "status": f"[{channel} SENT] Delivered to {recipient} at {timestamp} (Logged in fuuroo.db)."
-    })
+    if channel == "EMAIL":
+        google_token = os.environ.get("GOOGLE_OAUTH_TOKEN", "").strip()
+        sender_email = os.environ.get("GOOGLE_OAUTH_EMAIL", "me").strip()
+
+        if google_token:
+            try:
+                msg = EmailMessage()
+                msg["Subject"] = "FuuRoo Portal Notification"
+                msg["From"] = sender_email
+                msg["To"] = recipient
+                msg.set_content(message)
+
+                raw_msg = base64.urlsafe_b64encode(msg.as_bytes()).decode("utf-8")
+                res = requests.post(
+                    "https://gmail.googleapis.com/gmail/v1/users/me/messages/send",
+                    headers={
+                        "Authorization": f"Bearer {google_token}",
+                        "Content-Type": "application/json",
+                    },
+                    json={"raw": raw_msg},
+                    timeout=12,
+                )
+                if res.status_code in (200, 201):
+                    return jsonify({
+                        "status": f"[EMAIL SENT via Institutional Gmail API @ {timestamp}] Delivered from {sender_email} to {recipient}!"
+                    })
+                return jsonify({"status": f"Error sending EMAIL (Gmail API): {res.text}"}), 502
+            except Exception as e:
+                return jsonify({"status": f"Error sending EMAIL: {e}"}), 502
+
+        # Fallback to SMTP if signed in with local account instead of Google OAuth
+        smtp_host = os.environ.get("SMTP_HOST", "smtp.gmail.com")
+        smtp_port = int(os.environ.get("SMTP_PORT", "587"))
+        smtp_user = os.environ.get("SMTP_USER", "").strip()
+        smtp_pass = os.environ.get("SMTP_PASS", "").strip()
+        smtp_from = os.environ.get("SMTP_FROM", smtp_user).strip()
+
+        if not smtp_user or not smtp_pass or "your_gmail" in smtp_user:
+            return jsonify({
+                "status": "Error sending EMAIL: Please sign in using 'Sign in with Google (OAuth 2.0)' first so FuuRoo can send via your institutional Gmail API!"
+            }), 400
+
+        try:
+            msg = EmailMessage()
+            msg["Subject"] = "FuuRoo Portal Notification"
+            msg["From"] = smtp_from
+            msg["To"] = recipient
+            msg.set_content(message)
+
+            with smtplib.SMTP(smtp_host, smtp_port, timeout=15) as server:
+                server.starttls()
+                server.login(smtp_user, smtp_pass)
+                server.send_message(msg)
+
+            return jsonify({
+                "status": f"[EMAIL SENT @ {timestamp}] Delivered to {recipient} via {smtp_host}!"
+            })
+        except Exception as e:
+            return jsonify({"status": f"Error sending EMAIL: {e}"}), 502
+
+    if channel == "SMS":
+        api_key = os.environ.get("SEMAPHORE_API_KEY", "").strip()
+        sender_name = os.environ.get("SEMAPHORE_SENDER_NAME", "FuuRoo").strip()
+
+        if not api_key:
+            return jsonify({
+                "status": "Error sending SMS: Missing SEMAPHORE_API_KEY in .env file."
+            }), 400
+
+        try:
+            res = requests.post(
+                "https://api.semaphore.co/api/v4/messages",
+                data={
+                    "apikey": api_key,
+                    "number": recipient,
+                    "message": message,
+                    "sendername": sender_name,
+                },
+                timeout=12,
+            )
+            payload = res.json()
+            if res.status_code in (200, 201) and isinstance(payload, list) and payload:
+                msg_id = payload[0].get("message_id", "OK")
+                status_text = payload[0].get("status", "Queued")
+                return jsonify({
+                    "status": f"[SMS {status_text.upper()} @ {timestamp}] Sent to {recipient} via Semaphore (ID: {msg_id})"
+                })
+            return jsonify({"status": f"Error sending SMS: {payload}"}), 502
+        except Exception as e:
+            return jsonify({"status": f"Error sending SMS: {e}"}), 502
+
+    return jsonify({"status": f"Unsupported channel: {channel}"}), 400
 
 
-# ================= 3B-3: FAKER GENERATOR -> SQLITE DB =================
+# ================= 3B-3: FAKER DATA (10 FIELDS -> 20+ RECORDS -> SQLITE) =================
 @utils_bp.route("/api/utils/faker", methods=["GET", "POST"])
 def handle_faker():
-    conn = sqlite3.connect(DB_PATH)
-    conn.row_factory = sqlite3.Row
-    cur = conn.cursor()
+    init_db()
+    with get_db() as conn:
+        if request.method == "POST":
+            rows_to_insert = [
+                (
+                    fake.name(),
+                    fake.user_name(),
+                    fake.email(),
+                    fake.phone_number(),
+                    fake.city(),
+                    fake.country(),
+                    fake.company(),
+                    fake.job(),
+                    str(fake.date_between(start_date="-3y", end_date="today")),
+                )
+                for _ in range(20)
+            ]
+            conn.executemany(
+                """
+                INSERT INTO fake_users
+                (full_name, username, email, phone, city, country, company, job_title, joined_date)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """,
+                rows_to_insert,
+            )
+            conn.commit()
 
-    if request.method == "POST":
-        rows_to_insert = []
-        for _ in range(20):
-            rows_to_insert.append((
-                fake.name(),
-                fake.user_name(),
-                fake.email(),
-                fake.phone_number(),
-                fake.city(),
-                fake.country(),
-                fake.company(),
-                fake.job(),
-                str(fake.date_this_decade()),
-            ))
-
-        cur.executemany("""
-            INSERT INTO fake_members
-            (full_name, username, email, phone, city, country, company, job_title, joined_date)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-        """, rows_to_insert)
-        conn.commit()
-
-    cur.execute("SELECT * FROM fake_members ORDER BY id ASC")
-    records = [dict(row) for row in cur.fetchall()]
-    conn.close()
+        cursor = conn.execute("SELECT * FROM fake_users ORDER BY id ASC")
+        records = [dict(row) for row in cursor.fetchall()]
 
     return jsonify({"count": len(records), "records": records})

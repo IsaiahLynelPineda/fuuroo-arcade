@@ -16,6 +16,7 @@ oauthlib==4.0.1
 pyasn1==0.6.5
 pyasn1_modules==0.4.2
 pycparser==3.12
+python-dotenv
 requests==2.34.2
 requests-oauthlib==2.0.0
 tzdata==2026.6
