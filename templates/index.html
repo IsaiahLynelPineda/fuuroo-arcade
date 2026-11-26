@@ -532,7 +532,7 @@
         </div>
 
         <div class="header-search">
-            <input type="text" id="global-search" placeholder="Search Ben 10, GunBlood, Boss...">
+            <input type="text" id="global-search" placeholder="Search Ben 10, GunBlood, Boss..." onkeydown="if(event.key==='Enter') quickSearch()">
             <button onclick="quickSearch()">Go!</button>
         </div>
 
@@ -679,12 +679,31 @@
 
                     <!-- 2. MUSIC -->
                     <div id="msub-music" style="display:none;">
-                        <div style="background:#eef4fc; border:1px solid #9bb4d4; padding:8px; margin-bottom:10px; display:flex; gap:6px; align-items:center;">
-                            <strong>Artist / Genre Radio:</strong>
-                            <input type="text" id="music-query" value="2000s pop" style="flex:1; padding:4px; border:1px solid #888; background:#ffffd9;">
-                            <button class="btn-classic btn-green" onclick="searchMusic()">&#9654; Play Station</button>
+                        <div style="background:#eef4fc; border:1px solid #9bb4d4; padding:8px; margin-bottom:10px;">
+                            <div style="display:flex; gap:6px; align-items:center; margin-bottom:6px; flex-wrap:wrap;">
+                                <strong>Full-Track Radio Search:</strong>
+                                <input type="text" id="music-query" placeholder="Search full songs, artists, or genres..." onkeydown="if(event.key==='Enter') searchMusic()" style="flex:1; min-width:160px; padding:4px; border:1px solid #888; background:#ffffd9;">
+                                <button class="btn-classic btn-green" onclick="searchMusic()">&#9654; Tune Station</button>
+                            </div>
+                            <div style="font-size:10px; color:#444;">
+                                Full-Song Stations:
+                                <a onclick="tuneStation('trending')">Top Trending</a> |
+                                <a onclick="tuneStation('pop')">Pop</a> |
+                                <a onclick="tuneStation('hip hop')">Hip-Hop</a> |
+                                <a onclick="tuneStation('electronic')">Electronic</a> |
+                                <a onclick="tuneStation('lo-fi')">Lo-Fi</a> |
+                                <a onclick="tuneStation('rock')">Rock</a>
+                            </div>
                         </div>
-                        <audio id="radio-player" controls style="width:100%; margin-bottom:10px; display:none;"></audio>
+
+                        <div id="now-playing-bar" style="display:none; background:#1d4e85; color:#fff; border:1px solid #0f2d4f; padding:8px; margin-bottom:10px; border-radius:3px;">
+                            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+                                <span id="now-playing-text" style="font-weight:bold;">Now Playing...</span>
+                                <span style="background:#9ee024; color:#112200; padding:1px 6px; font-size:10px; font-weight:bold; border-radius:2px;">FULL SONG ON AIR</span>
+                            </div>
+                            <audio id="radio-player" controls style="width:100%; height:32px;"></audio>
+                        </div>
+
                         <div class="portal-grid" id="music-grid"></div>
                     </div>
 
@@ -835,9 +854,9 @@
     let loggedIn = false;
 
     const VIDEOS = [
-        { title: "The General (1926)", tag: "Comedy", embed: "https://archive.org/embed/TheGeneral1926", desc: "Buster Keaton silent comedy classic." },
-        { title: "Nosferatu (1922)", tag: "Horror", embed: "https://archive.org/embed/PhantasmagoriaTheater-Nosferatu1922909", desc: "Classic silent vampire horror film." },
-        { title: "Cops (1922)", tag: "Comedy", embed: "https://archive.org/embed/Cops1922", desc: "Buster Keaton silent comedy short." }
+        { title: "Night of the Living Dead (1968)", tag: "Horror", embed: "https://archive.org/embed/night_of_the_living_dead", desc: "Classic 1968 public domain feature film." },
+        { title: "Superman: Mechanical Monsters", tag: "Cartoon", embed: "https://archive.org/embed/superman_mechanical_monsters", desc: "1941 Fleischer animated classic." },
+        { title: "Plan 9 from Outer Space (1959)", tag: "Sci-Fi", embed: "https://archive.org/embed/Plan_9_from_Outer_Space_1959", desc: "Cult classic retro sci-fi movie." }
     ];
 
     function switchTab(tab) {
@@ -858,7 +877,7 @@
         };
         document.getElementById("breadcrumb-text").innerText = names[tab];
 
-        if (tab === "media") { renderMedia(); searchMusic(); }
+        if (tab === "media") { renderMedia(); searchMusic("trending"); }
         if (tab === "utils") { loadStoredFakeData(); }
         if (tab === "social") { loadSocial(); }
     }
@@ -975,32 +994,49 @@
         }
     }
 
-    async function searchMusic() {
-        const q = document.getElementById("music-query").value || "2000s pop";
+    function tuneStation(genre) {
+        document.getElementById("music-query").value = (genre === "trending") ? "" : genre;
+        searchMusic(genre);
+    }
+
+    async function searchMusic(overrideQuery = null) {
+        const inputVal = document.getElementById("music-query").value.trim();
+        const q = overrideQuery !== null ? overrideQuery : (inputVal || "trending");
         const grid = document.getElementById("music-grid");
-        grid.innerHTML = "<p>Tuning radio station...</p>";
+        grid.innerHTML = "<p>Loading full-length tracks from Audius Open Audio API...</p>";
         try {
-            const res = await fetch(`https://itunes.apple.com/search?term=${encodeURIComponent(q)}&media=music&limit=3`);
+            const res = await fetch(`/api/media/music?q=${encodeURIComponent(q)}`);
             const data = await res.json();
-            grid.innerHTML = data.results.map(t => `
-                <div class="item-card">
-                    <div class="thumb-frame">
-                        <img src="${t.artworkUrl100.replace('100x100','300x300')}" alt="cover">
-                        <span class="play-badge">&#9654; Listen</span>
+            if (!data.results || data.results.length === 0) {
+                grid.innerHTML = "<p>No full tracks found for that search. Try another artist or click Top Trending!</p>";
+                return;
+            }
+            grid.innerHTML = data.results.map(t => {
+                const safeTrack = t.trackName.replace(/'/g, "\\'");
+                const safeArtist = t.artistName.replace(/'/g, "\\'");
+                return `
+                    <div class="item-card">
+                        <div class="thumb-frame">
+                            <img src="${t.artwork}" alt="${safeTrack}" onerror="this.style.display='none'">
+                            <span class="play-badge">&#9654; ${t.duration}</span>
+                        </div>
+                        <a class="item-title" onclick="playRadio('${t.previewUrl}', '${safeTrack}', '${safeArtist}')">${t.trackName}</a>
+                        <div class="item-desc">${t.artistName} &bull; ${t.genre}</div>
+                        <button class="btn-classic btn-green" onclick="playRadio('${t.previewUrl}', '${safeTrack}', '${safeArtist}')">&#9654; Play Full Song</button>
                     </div>
-                    <a class="item-title" onclick="playRadio('${t.previewUrl}')">${t.trackName}</a>
-                    <div class="item-desc">${t.artistName}</div>
-                    <button class="btn-classic btn-green" onclick="playRadio('${t.previewUrl}')">&#9654; Play Track</button>
-                </div>
-            `).join("");
+                `;
+            }).join("");
         } catch (e) {
-            grid.innerHTML = "<p>Could not reach music API.</p>";
+            grid.innerHTML = "<p>Could not reach FuuRoo Music API.</p>";
         }
     }
 
-    function playRadio(url) {
+    function playRadio(url, title = "Track", artist = "FuuRoo Radio") {
+        const bar = document.getElementById("now-playing-bar");
+        const label = document.getElementById("now-playing-text");
         const audio = document.getElementById("radio-player");
-        audio.style.display = "block";
+        bar.style.display = "block";
+        label.innerHTML = `&#9835; Now Playing: <u>${title}</u> &mdash; ${artist}`;
         audio.src = url;
         audio.play();
     }

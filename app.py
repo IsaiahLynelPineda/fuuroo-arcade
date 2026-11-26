@@ -235,13 +235,53 @@ def swf_proxy():
 
 @app.route("/api/media/music")
 def get_music():
-    query = request.args.get("q", "2000s pop")
-    res = requests.get(
-        "https://itunes.apple.com/search",
-        params={"term": query, "media": "music", "limit": 3},
-        timeout=8,
-    ).json()
-    return jsonify({"results": res.get("results", [])})
+    query = request.args.get("q", "").strip()
+    headers = {"Accept": "application/json", "User-Agent": "FuuRooPortal/1.0"}
+
+    # Step 1: Discover an active Audius API host (fallback to public gateway)
+    host = "https://discoveryprovider.audius.co"
+    try:
+        hosts_res = requests.get("https://api.audius.co", headers=headers, timeout=5).json()
+        if hosts_res.get("data"):
+            host = hosts_res["data"][0]
+    except Exception:
+        pass
+
+    # Step 2: Query trending tracks (default) or search tracks by keyword
+    try:
+        if not query or query.lower() == "trending":
+            endpoint = f"{host}/v1/tracks/trending"
+            params = {"app_name": "FuuRooPortal", "limit": 6}
+        else:
+            endpoint = f"{host}/v1/tracks/search"
+            params = {"query": query, "app_name": "FuuRooPortal", "limit": 6}
+
+        res = requests.get(endpoint, params=params, headers=headers, timeout=8).json()
+        raw_tracks = res.get("data", [])
+
+        tracks = []
+        for item in raw_tracks:
+            track_id = item.get("id")
+            if not track_id or not item.get("is_streamable", True):
+                continue
+            artwork_obj = item.get("artwork") or {}
+            artwork = artwork_obj.get("480x480") or artwork_obj.get("150x150") or ""
+            duration = int(item.get("duration") or 0)
+            mins, secs = divmod(duration, 60)
+
+            tracks.append({
+                "trackId": track_id,
+                "trackName": item.get("title", "Untitled Track"),
+                "artistName": (item.get("user") or {}).get("name", "Independent Artist"),
+                "genre": item.get("genre") or "Full Track",
+                "duration": f"{mins}:{secs:02d}" if duration else "Full",
+                "artwork": artwork,
+                "previewUrl": f"{host}/v1/tracks/{track_id}/stream?app_name=FuuRooPortal",
+            })
+
+        return jsonify({"results": tracks[:6]})
+    except Exception as e:
+        return jsonify({"results": [], "error": str(e)}), 502
 
 
 if __name__ == "__main__":
