@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FuuRoo.com - Free Games, Movies, Music &amp; Web Utilities!</title>
+    <title>FuuRoo.com - Free Games, Movies &amp; Music Portal!</title>
     <script src="https://unpkg.com/@ruffle-rs/ruffle"></script>
     <style>
         /* ================= CLASSIC 2008 WEB 2.0 PORTAL CSS ================= */
@@ -412,85 +412,6 @@
             font-size: 11px;
         }
 
-        .util-block {
-            border: 1px solid #cccccc;
-            background: #fafafa;
-            border-radius: 3px;
-            padding: 12px;
-            margin-bottom: 14px;
-        }
-
-        .util-block:last-child {
-            margin-bottom: 0;
-        }
-
-        .util-block h3 {
-            font-size: 12px;
-            color: #1d4e85;
-            margin-bottom: 8px;
-            padding-bottom: 4px;
-            border-bottom: 1px solid #d8dee6;
-        }
-
-        /* CLASSIC DATA TABLE (3B) */
-        .classic-table-wrap {
-            width: 100%;
-            overflow-x: auto;
-            max-height: 380px;
-            border: 1px solid #999999;
-            margin-top: 10px;
-        }
-
-        table.classic-table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 10px;
-        }
-
-        table.classic-table th {
-            background: #dce6f2;
-            border: 1px solid #9bb4d4;
-            padding: 5px 6px;
-            text-align: left;
-            color: #1d4e85;
-            position: sticky;
-            top: 0;
-        }
-
-        table.classic-table td {
-            border: 1px solid #dddddd;
-            padding: 4px 6px;
-            white-space: nowrap;
-        }
-
-        table.classic-table tr:nth-child(even) { background: #f5f8fc; }
-
-        /* SOCIAL COLUMNS (3C) */
-        .social-cols {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 12px;
-            margin-top: 12px;
-        }
-
-        @media (max-width: 720px) { .social-cols { grid-template-columns: 1fr; } }
-
-        .wall-box {
-            border: 1px solid #b5c7de;
-            background: #f7faff;
-            padding: 8px;
-        }
-
-        .wall-header {
-            font-weight: bold;
-            color: #003399;
-            border-bottom: 1px solid #d0d9e6;
-            padding-bottom: 4px;
-            margin-bottom: 6px;
-            display: flex;
-            justify-content: space-between;
-        }
-
         /* EMBED MODAL */
         .modal-overlay {
             display: none;
@@ -549,11 +470,11 @@
 
     <!-- TOP CLASSIC STRIP -->
     <div class="top-strip">
-        <div>Welcome to <strong>FuuRoo.com</strong> — Your free old internet web for nostalgic entertainment! &amp; Utilities Portal!</div>
+        <div>Welcome to <strong>FuuRoo.com</strong> — Your Free Web 2.0 Entertainment &amp; Media Portal!</div>
         <div>
             Status: <strong id="top-user-status" style="color:#cc0000;">Guest (Not Logged In)</strong> |
             <a onclick="switchTab('auth')">My Account</a> |
-            <a onclick="alert('FuuRoo SIA Project - All 5 Modules Online!')">Help</a>
+            <a onclick="alert('FuuRoo SIA Project - Media & Entertainment Module Online!')">Help</a>
         </div>
     </div>
 
@@ -562,13 +483,13 @@
         <div class="logo-box">
             <div class="logo-badge">FuuRoo</div>
             <div>
-                <div class="logo-tagline">Free Videos, Music, Games &amp; Web Tools!</div>
-                
+                <div class="logo-tagline">Free Videos, Music &amp; Online Games!</div>
+                <div class="logo-sub">System Integration &amp; Architecture Portal</div>
             </div>
         </div>
 
         <div class="header-search">
-            <input type="text" id="global-search" placeholder="Search games, movies, music, tools..." onkeydown="if(event.key==='Enter') quickSearch()">
+            <input type="text" id="global-search" placeholder="Search games, movies, music..." onkeydown="if(event.key==='Enter') quickSearch()">
             <button onclick="quickSearch()">Go!</button>
         </div>
 
@@ -582,8 +503,6 @@
     <nav class="folder-tabs">
         <button class="folder-tab active" id="ftab-auth" onclick="switchTab('auth')">Login / OAuth 2.0</button>
         <button class="folder-tab" id="ftab-media" onclick="switchTab('media')">Media &amp; Entertainment (3A)</button>
-        <button class="folder-tab" id="ftab-utils" onclick="switchTab('utils')">Web Utilities (3B)</button>
-        <button class="folder-tab" id="ftab-social" onclick="switchTab('social')">Social Hub: IG / X / FB (3C)</button>
     </nav>
 
     <!-- SUB-NAVIGATION BREADCRUMB STRIP -->
@@ -592,7 +511,10 @@
             <a onclick="switchTab('auth')">Home</a> &raquo;
             <strong id="breadcrumb-text">Member Login &amp; OAuth 2.0</strong>
         </div>
-       
+        <div>
+            <span style="background:#3b5998; color:#fff; padding:2px 6px; border-radius:2px; font-size:10px;">f Like 1.4k</span>
+            <span style="background:#ff6600; color:#fff; padding:2px 6px; border-radius:2px; font-size:10px;">+ Share</span>
+        </div>
     </div>
 
     <!-- PORTAL 2-COLUMN WORKSPACE -->
@@ -608,8 +530,9 @@
                     <ul class="dir-list">
                         <li><a onclick="switchTab('auth')">1. Member Login</a> <span class="dir-count">(OAuth)</span></li>
                         <li><a onclick="switchTab('media')">2. Media &amp; Entertainment</a> <span class="dir-count">(3A)</span></li>
-                        <li><a onclick="switchTab('utils')">3. Web Utilities</a> <span class="dir-count">(3B)</span></li>
-                        <li><a onclick="switchTab('social')">4. IG / X / FB Wall</a> <span class="dir-count">(Live)</span></li>
+                        <li><a onclick="switchTab('media'); switchMediaSub('video')">&nbsp;&nbsp;&bull; Movies &amp; Video</a> <span class="dir-count">Archive</span></li>
+                        <li><a onclick="switchTab('media'); switchMediaSub('music')">&nbsp;&nbsp;&bull; Internet Radio</a> <span class="dir-count">MP3</span></li>
+                        <li><a onclick="switchTab('media'); switchMediaSub('games')">&nbsp;&nbsp;&bull; Free Flash Games</a> <span class="dir-count">Ruffle</span></li>
                     </ul>
                 </div>
             </div>
@@ -641,7 +564,7 @@
                     <button class="btn-classic" onclick="switchTab('media')">Back to Media</button>
                 </div>
                 <div class="panel-inner" id="global-search-results">
-                    <p>Enter a keyword in the top search bar to search across Games, Movies, Music, and Web Utilities.</p>
+                    <p>Enter a keyword in the top search bar to search across Games, Movies, and Music.</p>
                 </div>
             </section>
 
@@ -651,12 +574,12 @@
             <section id="sec-auth" class="portal-panel">
                 <div class="panel-bar">
                     <h2>Member Sign In &amp; Google OAuth 2.0</h2>
-                   
+                    <span style="color:#666;">Req #1 &amp; #2</span>
                 </div>
                 <div class="panel-inner">
                     <div id="auth-login-view" style="max-width: 460px; margin: 0 auto;">
                         <p style="margin-bottom: 10px;">
-                            Sign in with your FuuRoo account or connect via <strong>Google OAuth 2.0</strong> to unlock Media, Utilities, and Social feeds.
+                            Sign in with your FuuRoo account or connect via <strong>Google OAuth 2.0</strong> to unlock Movies, Internet Radio, and Free Online Games.
                         </p>
 
                         <div class="form-row">
@@ -675,7 +598,7 @@
                         </div>
 
                         <div class="notice-box" id="auth-notice">
-                            <strong>Note:</strong> Guest mode active. Please sign in above to access all portal modules.
+                            <strong>Note:</strong> Guest mode active. Please sign in above to access Media &amp; Entertainment.
                         </div>
                     </div>
 
@@ -694,7 +617,7 @@
             <section id="sec-media" class="portal-panel" style="display:none;">
                 <div class="panel-bar">
                     <h2>Media &amp; Entertainment Center</h2>
-                    
+                    <span style="color:#666;">Requirement #3A</span>
                 </div>
                 <div class="panel-inner">
                     <div class="inner-tabs">
@@ -730,182 +653,12 @@
                 </div>
             </section>
 
-            <!-- ===================================================== -->
-            <!-- MODULE 3B: UTILITIES (ALL IN ONE VIEW)                -->
-            <!-- ===================================================== -->
-            <section id="sec-utils" class="portal-panel" style="display:none;">
-                <div class="panel-bar">
-                    <h2>Web Utilities: URL Shortening, SMS &amp; Email, Fake Data DB</h2>
-                </div>
-                <div class="panel-inner">
-
-                    <!-- 1. URL SHORTENER -->
-                    <div class="util-block">
-                        <h3>1. URL Shortening</h3>
-                        <div class="form-row">
-                            <label>Paste Long Website URL:</label>
-                            <input type="url" id="long-url" placeholder="https://www.example.com/very/long/project-link">
-                        </div>
-                        <button class="btn-classic btn-blue" onclick="shortenUrl()">Shorten URL Now</button>
-                        <div class="notice-box" id="url-output">Your shortened link will appear here.</div>
-                    </div>
-
-                    <!-- 2. SMS & EMAIL -->
-                    <div class="util-block">
-                        <h3>2. SMS &amp; Email Sender</h3>
-                        <div class="form-row">
-                            <label>Service Type:</label>
-                            <select id="msg-type">
-                                <option value="EMAIL">Email Notification (SMTP / REST API)</option>
-                                <option value="SMS">SMS Text Message (SMS Gateway API)</option>
-                            </select>
-                        </div>
-                        <div class="form-row">
-                            <label>Recipient (Email or Mobile Number):</label>
-                            <input type="text" id="msg-to" placeholder="student@neu.edu.ph or +639171234567">
-                        </div>
-                        <div class="form-row">
-                            <label>Message Text:</label>
-                            <textarea id="msg-text" rows="3">Hello! Testing FuuRoo Web Portal SMS & Email API.</textarea>
-                        </div>
-                        <button class="btn-classic btn-blue" onclick="sendMsg()">Send Message</button>
-                        <div class="notice-box" id="msg-output">Ready to send SMS or Email.</div>
-                    </div>
-
-                    <!-- 3. FAKER DATA (10 FIELDS -> 20+ RECORDS -> STORED) -->
-                    <div class="util-block">
-                        <h3>3. Fake Data Generation (10 Fields &rarr; 20+ Records &rarr; Stored)</h3>
-                        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
-                            <span>Generates <strong>20+ records</strong> across <strong>10 fields</strong> and saves to SQLite (<code>fuuroo.db</code>) — Stored count: <strong id="side-db-count">(0/20)</strong>.</span>
-                            <button class="btn-classic btn-green" onclick="generateFakeData()">Generate &amp; Store 20 Records</button>
-                        </div>
-
-                        <div class="classic-table-wrap">
-                            <table class="classic-table">
-                                <thead>
-                                    <tr>
-                                        <th>1. ID</th>
-                                        <th>2. Full Name</th>
-                                        <th>3. Username</th>
-                                        <th>4. Email</th>
-                                        <th>5. Phone</th>
-                                        <th>6. City</th>
-                                        <th>7. Country</th>
-                                        <th>8. Company</th>
-                                        <th>9. Job Title</th>
-                                        <th>10. Date Joined</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="faker-tbody">
-                                    <tr><td colspan="10" style="text-align:center; color:#666;">No records in database yet. Click "Generate &amp; Store 20 Records".</td></tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-
-                </div>
-            </section>
-
-            <!-- ===================================================== -->
-            <!-- MODULE 3C: SOCIAL MEDIA PROMOTION HUB (IG, X, FB)     -->
-            <!-- ===================================================== -->
-            <section id="sec-social" class="portal-panel" style="display:none;">
-                <div class="panel-bar">
-                    <h2>Social Media Hub &amp; Portal Promotion (Instagram, X, Facebook)</h2>
-                </div>
-                <div class="panel-inner">
-
-                    <!-- 1. OFFICIAL FUUROO SOCIAL CHANNELS -->
-                    <div class="util-block">
-                        <h3>1. Follow FuuRoo Official Channels</h3>
-                        <div class="social-cols" style="margin-top:6px;">
-                            <div class="wall-box" style="border-color:#c13584; background:#fff7fb;">
-                                <div class="wall-header" style="color:#c13584;">
-                                    <span>Instagram Official</span>
-                                    <span>@fuuroo.official</span>
-                                </div>
-                                <p style="font-size:10px; color:#444; margin-bottom:8px;">
-                                    Retro Flash game highlights, Operation Ivy playlist drops &amp; portal updates.
-                                </p>
-                                <div style="display:flex; justify-content:space-between; align-items:center;">
-                                    <span style="font-size:10px; color:#666;"><strong>2,480</strong> Followers</span>
-                                    <a href="https://www.instagram.com/" target="_blank" rel="noopener" class="btn-classic" style="background:linear-gradient(to bottom, #e1306c 0%, #9b1b47 100%); color:#fff; border-color:#701032;">Follow on IG &raquo;</a>
-                                </div>
-                            </div>
-
-                            <div class="wall-box" style="border-color:#222222; background:#f8f9fa;">
-                                <div class="wall-header" style="color:#111111;">
-                                    <span>X (Twitter) Official</span>
-                                    <span>@FuuRooPortal</span>
-                                </div>
-                                <p style="font-size:10px; color:#444; margin-bottom:8px;">
-                                    Live portal announcements, new Ruffle SWF releases &amp; SIA dev logs.
-                                </p>
-                                <div style="display:flex; justify-content:space-between; align-items:center;">
-                                    <span style="font-size:10px; color:#666;"><strong>1,920</strong> Followers</span>
-                                    <a href="https://x.com/" target="_blank" rel="noopener" class="btn-classic" style="background:linear-gradient(to bottom, #333333 0%, #000000 100%); color:#fff; border-color:#000;">Follow on X &raquo;</a>
-                                </div>
-                            </div>
-
-                            <div class="wall-box" style="border-color:#3b5998; background:#f2f6fc;">
-                                <div class="wall-header" style="color:#3b5998;">
-                                    <span>Facebook Official Page</span>
-                                    <span>/FuuRooPortal</span>
-                                </div>
-                                <p style="font-size:10px; color:#444; margin-bottom:8px;">
-                                    Community wall, high-score challenges &amp; NEU CCS student showcase.
-                                </p>
-                                <div style="display:flex; justify-content:space-between; align-items:center;">
-                                    <span style="font-size:10px; color:#666;"><strong>3,150</strong> Page Likes</span>
-                                    <a href="https://www.facebook.com/" target="_blank" rel="noopener" class="btn-classic btn-blue">Like Page &raquo;</a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- 2. VIRAL PROMO SHARE & COMMUNITY COMPOSER -->
-                    <div class="util-block">
-                        <h3>2. Promote FuuRoo — Share to X, Facebook, Instagram &amp; Portal Wall</h3>
-                        <div class="form-row">
-                            <label>Promo Message / Community Shoutout:</label>
-                            <textarea id="social-text" rows="2">Check out FuuRoo.com! Free classic Flash games, Operation Ivy radio, and web utilities in a 2008 Web 2.0 portal! #FuuRoo #Web2</textarea>
-                        </div>
-                        <div style="display:flex; gap:6px; flex-wrap:wrap; align-items:center;">
-                            <button class="btn-classic btn-green" onclick="postSocial()">Post to Wall Feeds</button>
-                            <button class="btn-classic" style="background:linear-gradient(to bottom, #333 0%, #000 100%); color:#fff;" onclick="shareToExternal('X')">Share on X (Live Intent)</button>
-                            <button class="btn-classic btn-blue" onclick="shareToExternal('FB')">Share on Facebook (Live)</button>
-                            <button class="btn-classic" style="background:linear-gradient(to bottom, #e1306c 0%, #9b1b47 100%); color:#fff;" onclick="shareToExternal('IG')">Copy Caption for IG</button>
-                        </div>
-                        <div class="notice-box" id="social-status-box" style="margin-top:8px;">
-                            Ready to promote FuuRoo across Instagram, X, and Facebook!
-                        </div>
-                    </div>
-
-                    <!-- 3. 3-COLUMN PROMO FEEDS -->
-                    <div class="social-cols">
-                        <div class="wall-box">
-                            <div class="wall-header"><span>Instagram Feed</span><span>@fuuroo.official</span></div>
-                            <div id="wall-ig"></div>
-                        </div>
-                        <div class="wall-box">
-                            <div class="wall-header"><span>X (Twitter) Feed</span><span>@FuuRooPortal</span></div>
-                            <div id="wall-x"></div>
-                        </div>
-                        <div class="wall-box">
-                            <div class="wall-header"><span>Facebook Wall</span><span>/FuuRooPortal</span></div>
-                            <div id="wall-fb"></div>
-                        </div>
-                    </div>
-
-                </div>
-            </section>
-
         </main>
     </div>
 
     <!-- CLASSIC FOOTER -->
     <footer class="portal-footer">
-        Copyright &copy; 2026 FuuRoo.com Entertainment &amp; Web Utilities Portal. All rights reserved.
+        Copyright &copy; 2008–2026 FuuRoo.com Entertainment &amp; Media Portal. All rights reserved. | Best viewed at 1024x768 resolution.
     </footer>
 
 </div>
@@ -939,33 +692,24 @@
         { trackName: "Knowledge", artistName: "Operation Ivy", genre: "Ska-Punk (1989)", duration: "1:42", artwork: "https://archive.org/services/img/1989-operation-ivy-energy", previewUrl: "/api/media/audio_proxy?track=opivy-knowledge" }
     ];
 
-    const PORTAL_TOOLS = [
-        { title: "Web Utilities (URL, SMS/Email, Faker DB)", tag: "Utility (3B)", desc: "Shorten URLs, send SMS/Email, and generate 20+ SQLite records across 10 fields.", action: "switchTab('utils')", btn: "Open Utilities" },
-        { title: "Social Media Hub (IG / X / FB)", tag: "Social (3C)", desc: "Follow FuuRoo channels and share updates across Instagram, X, and Facebook.", action: "switchTab('social')", btn: "Open Hub" }
-    ];
-
     function switchTab(tab) {
         if (tab !== "auth" && !loggedIn) {
             document.getElementById("auth-notice").innerHTML = "<strong style='color:#cc0000;'>Access Denied:</strong> Please Sign In or use Google OAuth first!";
             return;
         }
         document.getElementById("sec-search").style.display = "none";
-        ["auth", "media", "utils", "social"].forEach(t => {
+        ["auth", "media"].forEach(t => {
             document.getElementById("sec-" + t).style.display = (t === tab) ? "block" : "none";
             document.getElementById("ftab-" + t).classList.toggle("active", t === tab);
         });
 
         const names = {
             auth: "Member Login & OAuth 2.0",
-            media: "Media & Entertainment (Movies, Music, Games)",
-            utils: "Web Utilities (URL Shortening, SMS & Email, Fake Data DB)",
-            social: "Social Media Hub & Portal Promotion (Instagram, X, Facebook)"
+            media: "Media & Entertainment (Movies, Music, Games)"
         };
         document.getElementById("breadcrumb-text").innerText = names[tab];
 
         if (tab === "media") { renderMedia(); searchMusic("featured"); }
-        if (tab === "utils") { loadStoredFakeData(); }
-        if (tab === "social") { loadSocial(); }
     }
 
     async function quickSearch() {
@@ -975,7 +719,7 @@
 
         const q = rawQuery.toLowerCase();
 
-        ["auth", "media", "utils", "social"].forEach(t => {
+        ["auth", "media"].forEach(t => {
             document.getElementById("sec-" + t).style.display = "none";
             document.getElementById("ftab-" + t).classList.remove("active");
         });
@@ -990,12 +734,6 @@
             v.title.toLowerCase().includes(q) ||
             v.tag.toLowerCase().includes(q) ||
             v.desc.toLowerCase().includes(q)
-        );
-
-        const matchedTools = PORTAL_TOOLS.filter(t =>
-            t.title.toLowerCase().includes(q) ||
-            t.tag.toLowerCase().includes(q) ||
-            t.desc.toLowerCase().includes(q)
         );
 
         const matchedMusic = FEATURED_MUSIC_INDEX.filter(t =>
@@ -1067,20 +805,6 @@
                     </div>
                 `;
             }).join("") + `</div>`;
-        }
-
-        if (matchedTools.length > 0) {
-            html += `<h3 style="margin:8px 0; color:#1d4e85;">Web Utilities &amp; Portal Sections (${matchedTools.length})</h3><div class="portal-grid" style="margin-bottom:14px;">`;
-            html += matchedTools.map(tool => `
-                <div class="item-card">
-                    <div class="thumb-frame" style="background:#1f5c99; color:#fff;">
-                        <span>[ ${tool.tag.toUpperCase()} ]</span>
-                    </div>
-                    <a class="item-title" onclick="${tool.action}">${tool.title}</a>
-                    <div class="item-desc">${tool.desc}</div>
-                    <button class="btn-classic btn-blue" onclick="${tool.action}">${tool.btn}</button>
-                </div>
-            `).join("") + `</div>`;
         }
 
         if (!html) {
@@ -1266,181 +990,6 @@
         document.getElementById("ruffle-container").innerHTML = "";
     }
 
-    /* ================= UTILITIES (3B) ================= */
-    async function shortenUrl() {
-        const url = document.getElementById("long-url").value.trim();
-        if (!url) return;
-        const out = document.getElementById("url-output");
-        out.innerText = "Shortening URL...";
-        try {
-            const res = await fetch("/api/utils/shorten", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ url })
-            });
-            const data = await res.json();
-            out.innerHTML = `Short Link: <a href="${data.short_url}" target="_blank">${data.short_url}</a>`;
-        } catch (e) {
-            out.innerText = `Ready for backend -> POST /api/utils/shorten (${url})`;
-        }
-    }
-
-    async function sendMsg() {
-        const channel = document.getElementById("msg-type").value;
-        const recipient = document.getElementById("msg-to").value;
-        const message = document.getElementById("msg-text").value;
-        const out = document.getElementById("msg-output");
-        out.innerText = `Sending ${channel}...`;
-        try {
-            const res = await fetch("/api/utils/notify", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ channel, recipient, message })
-            });
-            const data = await res.json();
-            out.innerText = data.status;
-        } catch (e) {
-            out.innerText = `Ready for backend -> POST /api/utils/notify (${channel} to ${recipient})`;
-        }
-    }
-
-    async function loadStoredFakeData() {
-        try {
-            const res = await fetch("/api/utils/faker");
-            const data = await res.json();
-            if (data.records && data.records.length > 0) {
-                renderTable(data.records);
-            }
-        } catch (e) {}
-    }
-
-    async function generateFakeData() {
-        try {
-            const res = await fetch("/api/utils/faker", { method: "POST" });
-            const data = await res.json();
-            renderTable(data.records);
-        } catch (e) {
-            const demo = Array.from({ length: 20 }, (_, i) => ({
-                id: i + 1,
-                full_name: `User Member #${i + 1}`,
-                username: `fuuroo_fan_${100 + i}`,
-                email: `member${i + 1}@fuuroo.com`,
-                phone: `+63-917-555-01${String(i).padStart(2, '0')}`,
-                city: ["Quezon City", "Manila", "Makati", "Cebu"][i % 4],
-                country: "Philippines",
-                company: "FuuRoo Web Corp",
-                job_title: "Web Developer",
-                joined_date: `2026-11-${String((i % 28) + 1).padStart(2, '0')}`
-            }));
-            renderTable(demo);
-        }
-    }
-
-    function renderTable(rows) {
-        document.getElementById("side-db-count").innerText = `(${rows.length}/20)`;
-        document.getElementById("faker-tbody").innerHTML = rows.map(r => `
-            <tr>
-                <td>${r.id}</td>
-                <td>${r.full_name}</td>
-                <td>${r.username}</td>
-                <td>${r.email}</td>
-                <td>${r.phone}</td>
-                <td>${r.city}</td>
-                <td>${r.country}</td>
-                <td>${r.company}</td>
-                <td>${r.job_title}</td>
-                <td>${r.joined_date}</td>
-            </tr>
-        `).join("");
-    }
-
-    /* ================= SOCIAL (3C) ================= */
-    const DEFAULT_SOCIAL_FEEDS = {
-        ig: [
-            { author: "@fuuroo.official", text: "Play Ben 10: Savage Pursuit & GunBlood right in your browser with Ruffle WASM! Link in bio.", likes: 48, time: "2h ago" },
-            { author: "@fuuroo.official", text: "Now streaming Operation Ivy's Energy album on FuuRoo Internet Radio!", likes: 63, time: "1d ago" }
-        ],
-        x: [
-            { author: "@FuuRooPortal", text: "FuuRoo Web 2.0 Portal is LIVE! Free games, movies, music, URL shortener & Gmail API alerts in one place. #SIA2026", likes: 29, time: "1h ago" },
-            { author: "@FuuRooPortal", text: "Who remembers playing Flash games after class in 2008? Come try Whack Your Boss on FuuRoo!", likes: 41, time: "5h ago" }
-        ],
-        fb: [
-            { author: "FuuRoo Web Portal", text: "Welcome NEU CCS students & visitors! Share our portal link with your classmates and test all 5 integrated modules.", likes: 85, time: "3h ago" },
-            { author: "FuuRoo Web Portal", text: "New Feature: Generate 20+ Faker user records across 10 fields saved straight to SQLite.", likes: 37, time: "1d ago" }
-        ]
-    };
-
-    function getSocialStore() {
-        try {
-            const saved = localStorage.getItem("fuuroo_social_feeds");
-            if (saved) return JSON.parse(saved);
-        } catch (e) {}
-        return JSON.parse(JSON.stringify(DEFAULT_SOCIAL_FEEDS));
-    }
-
-    function loadSocial() {
-        const store = getSocialStore();
-        ["ig", "x", "fb"].forEach(net => {
-            const box = document.getElementById("wall-" + net);
-            if (!box) return;
-            box.innerHTML = store[net].map((item, idx) => `
-                <div style="background:#fff; border:1px solid #d0d9e6; padding:7px; margin-bottom:7px; border-radius:2px;">
-                    <div style="display:flex; justify-content:space-between; font-size:10px; color:#003399; font-weight:bold; margin-bottom:3px;">
-                        <span>${item.author}</span>
-                        <span style="color:#777; font-weight:normal;">${item.time}</span>
-                    </div>
-                    <div style="font-size:11px; color:#222; margin-bottom:5px;">${item.text}</div>
-                    <button class="btn-classic" style="padding:2px 6px; font-size:10px;" onclick="likeSocialPost('${net}', ${idx})">&#9829; Like (${item.likes})</button>
-                </div>
-            `).join("");
-        });
-    }
-
-    function postSocial() {
-        const input = document.getElementById("social-text");
-        const text = input.value.trim();
-        if (!text) return alert("Please enter a promo message first!");
-
-        const statusEl = document.getElementById("top-user-status").innerText;
-        const userLabel = statusEl.includes("@") ? statusEl.split(" ")[0] : "@fuuroo_member";
-
-        const store = getSocialStore();
-        store.ig.unshift({ author: userLabel, text, likes: 1, time: "Just now" });
-        store.x.unshift({ author: userLabel, text, likes: 1, time: "Just now" });
-        store.fb.unshift({ author: userLabel, text, likes: 1, time: "Just now" });
-
-        localStorage.setItem("fuuroo_social_feeds", JSON.stringify(store));
-        loadSocial();
-        document.getElementById("social-status-box").innerHTML =
-            "<strong style='color:#006600;'>Published!</strong> Your promo shoutout is now live on the Instagram, X, and Facebook walls below.";
-    }
-
-    function likeSocialPost(net, idx) {
-        const store = getSocialStore();
-        if (store[net] && store[net][idx]) {
-            store[net][idx].likes += 1;
-            localStorage.setItem("fuuroo_social_feeds", JSON.stringify(store));
-            loadSocial();
-        }
-    }
-
-    function shareToExternal(platform) {
-        const text = document.getElementById("social-text").value.trim() || "Check out FuuRoo.com — Retro Web 2.0 Entertainment & Utilities Portal!";
-        const portalUrl = window.location.origin;
-        const statusBox = document.getElementById("social-status-box");
-
-        if (platform === "X") {
-            window.open(`https://x.com/intent/tweet?text=${encodeURIComponent(text + " " + portalUrl)}`, "_blank", "noopener");
-            statusBox.innerHTML = "Opened <strong>X (Twitter)</strong> share window with your promo message pre-filled!";
-        } else if (platform === "FB") {
-            window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(portalUrl)}&quote=${encodeURIComponent(text)}`, "_blank", "noopener");
-            statusBox.innerHTML = "Opened <strong>Facebook</strong> share dialog with FuuRoo's link!";
-        } else if (platform === "IG") {
-            navigator.clipboard.writeText(`${text} ${portalUrl}`).catch(() => {});
-            statusBox.innerHTML = "<strong style='color:#c13584;'>Copied to Clipboard!</strong> Ready to paste into your Instagram post or story caption.";
-        }
-    }
-
     /* ================= RESTORE SESSION ON LOAD ================= */
     window.addEventListener("DOMContentLoaded", async () => {
         try {
@@ -1449,7 +998,6 @@
             if (data.logged_in && data.user) {
                 finishLogin(data.user, data.method || "Google OAuth 2.0");
             }
-            loadStoredFakeData();
         } catch (e) {}
     });
 </script>
