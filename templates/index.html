@@ -256,7 +256,6 @@
         }
 
         .dir-list li:last-child { border-bottom: none; }
-        .dir-count { color: #777777; font-size: 10px; }
 
         /* MAIN CONTENT AREA */
         .main-content {
@@ -528,11 +527,11 @@
                 <div class="side-box-header">Portal Directory</div>
                 <div class="side-box-content">
                     <ul class="dir-list">
-                        <li><a onclick="switchTab('auth')">1. Member Login</a> <span class="dir-count">(OAuth)</span></li>
-                        <li><a onclick="switchTab('media')">2. Media &amp; Entertainment</a> <span class="dir-count">(3A)</span></li>
-                        <li><a onclick="switchTab('media'); switchMediaSub('video')">&nbsp;&nbsp;&bull; Movies &amp; Video</a> <span class="dir-count">Archive</span></li>
-                        <li><a onclick="switchTab('media'); switchMediaSub('music')">&nbsp;&nbsp;&bull; Internet Radio</a> <span class="dir-count">MP3</span></li>
-                        <li><a onclick="switchTab('media'); switchMediaSub('games')">&nbsp;&nbsp;&bull; Free Flash Games</a> <span class="dir-count">Ruffle</span></li>
+                        <li><a onclick="switchTab('auth')">1. Member Login</a></li>
+                        <li><a onclick="switchTab('media')">2. Media &amp; Entertainment</a></li>
+                        <li><a onclick="switchTab('media'); switchMediaSub('video')">&nbsp;&nbsp;&bull; Movies &amp; Video</a></li>
+                        <li><a onclick="switchTab('media'); switchMediaSub('music')">&nbsp;&nbsp;&bull; Internet Radio</a></li>
+                        <li><a onclick="switchTab('media'); switchMediaSub('games')">&nbsp;&nbsp;&bull; Free Flash Games</a></li>
                     </ul>
                 </div>
             </div>
@@ -542,10 +541,10 @@
                 <div class="side-box-header">Top Hits Today</div>
                 <div class="side-box-content">
                     <ul class="dir-list">
-                        <li><a onclick="openPlayer('Ben 10: Savage Pursuit', '/api/media/swf_proxy?game=ben10', 'swf')">1. Ben 10: Savage Pursuit</a> <span class="dir-count">Flash</span></li>
-                        <li><a onclick="openPlayer('GunBlood', '/api/media/swf_proxy?game=gunblood', 'swf')">2. GunBlood</a> <span class="dir-count">Flash</span></li>
-                        <li><a onclick="openPlayer('Whack Your Boss (17 Ways)', '/api/media/swf_proxy?game=whackyourboss', 'swf')">3. Whack Your Boss</a> <span class="dir-count">Flash</span></li>
-                        <li><a onclick="switchTab('media'); switchMediaSub('music'); playRadio('/api/media/audio_proxy?track=opivy-take-warning', 'Take Warning', 'Operation Ivy')">4. Take Warning (Op Ivy)</a> <span class="dir-count">MP3</span></li>
+                        <li><a onclick="openPlayer('Ben 10: Savage Pursuit', '/api/media/swf_proxy?game=ben10', 'swf')">1. Ben 10: Savage Pursuit</a></li>
+                        <li><a onclick="openPlayer('GunBlood', '/api/media/swf_proxy?game=gunblood', 'swf')">2. GunBlood</a></li>
+                        <li><a onclick="openPlayer('Whack Your Boss (17 Ways)', '/api/media/swf_proxy?game=whackyourboss', 'swf')">3. Whack Your Boss</a></li>
+                        <li><a onclick="switchTab('media'); switchMediaSub('music'); playRadio('/api/media/audio_proxy?track=opivy-take-warning', 'Take Warning', 'Operation Ivy')">4. Take Warning (Op Ivy)</a></li>
                     </ul>
                 </div>
             </div>
