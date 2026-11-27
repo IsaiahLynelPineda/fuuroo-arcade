@@ -1,7 +1,9 @@
 import os
+import sqlite3
 import requests
 from flask import Flask, render_template, request, jsonify, session, redirect, url_for, Response, send_file
 from google_auth_oauthlib.flow import Flow
+from werkzeug.security import generate_password_hash, check_password_hash
 from routes_utilities import utils_bp
 
 # Allow OAuth 2.0 over http://localhost for local university demo
@@ -11,6 +13,7 @@ app = Flask(__name__)
 app.secret_key = "fuuroo_super_secret_web2_portal_key"
 app.register_blueprint(utils_bp)
 
+DB_PATH = os.path.join(app.root_path, "fuuroo.db")
 CLIENT_SECRETS_FILE = "client_secret.json"
 SCOPES = [
     "openid",
@@ -19,6 +22,25 @@ SCOPES = [
     "https://www.googleapis.com/auth/gmail.send",
 ]
 REDIRECT_URI = "http://localhost:5000/callback"
+
+
+def init_users_db():
+    conn = sqlite3.connect(DB_PATH)
+    cur = conn.cursor()
+    cur.execute("""
+        CREATE TABLE IF NOT EXISTS users (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            username TEXT UNIQUE NOT NULL,
+            email TEXT UNIQUE NOT NULL,
+            password_hash TEXT NOT NULL,
+            created_at TEXT DEFAULT CURRENT_TIMESTAMP
+        )
+    """)
+    conn.commit()
+    conn.close()
+
+
+init_users_db()
 
 FEATURED_GAMES = {
     "ben10": {
@@ -106,17 +128,61 @@ def get_session():
 
 
 # ================= MODULE 1 & 2: AUTH & GOOGLE OAUTH 2.0 =================
+@app.route("/signup/local", methods=["POST"])
+def signup_local():
+    data = request.get_json(silent=True) or {}
+    username = (data.get("username") or "").strip()
+    email = (data.get("email") or "").strip().lower()
+    password = data.get("password") or ""
+
+    if not username or not email or not password:
+        return jsonify({"success": False, "error": "Username, email, and password are required."}), 400
+    if len(password) < 6:
+        return jsonify({"success": False, "error": "Password must be at least 6 characters."}), 400
+
+    conn = sqlite3.connect(DB_PATH)
+    cur = conn.cursor()
+    try:
+        cur.execute(
+            "INSERT INTO users (username, email, password_hash) VALUES (?, ?, ?)",
+            (username, email, generate_password_hash(password)),
+        )
+        conn.commit()
+    except sqlite3.IntegrityError:
+        conn.close()
+        return jsonify({"success": False, "error": "Username or email is already registered."}), 409
+
+    conn.close()
+    session["user"] = username
+    session["method"] = "Local Account"
+    return jsonify({"success": True, "user": username, "method": "Local Account"})
+
+
 @app.route("/login/local", methods=["POST"])
 def login_local():
-    data = request.get_json() or {}
-    username = data.get("username", "").strip()
-    password = data.get("password", "").strip()
+    data = request.get_json(silent=True) or {}
+    identifier = (data.get("username") or "").strip()
+    password = data.get("password") or ""
 
-    if username and password:
-        session["user"] = username
-        session["method"] = "Local Account"
-        return jsonify({"success": True, "user": username, "method": "Local Account"})
-    return jsonify({"success": False, "error": "Username and password required"}), 400
+    if not identifier or not password:
+        return jsonify({"success": False, "error": "Username/email and password required"}), 400
+
+    conn = sqlite3.connect(DB_PATH)
+    conn.row_factory = sqlite3.Row
+    cur = conn.cursor()
+    cur.execute(
+        "SELECT * FROM users WHERE username = ? OR LOWER(email) = LOWER(?)",
+        (identifier, identifier),
+    )
+    user = cur.fetchone()
+    conn.close()
+
+    if not user or not check_password_hash(user["password_hash"], password):
+        return jsonify({"success": False, "error": "Invalid username/email or password."}), 401
+
+    session["user"] = user["username"]
+    session["method"] = "Local Account"
+    return jsonify({"success": True, "user": user["username"], "method": "Local Account"})
 
 
 @app.route("/login/google")

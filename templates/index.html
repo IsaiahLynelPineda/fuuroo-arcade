@@ -469,8 +469,7 @@
 
     <!-- TOP CLASSIC STRIP -->
     <div class="top-strip">
-        <div>Welcome to <strong>FuuRoo.com</strong> — Your free old internet web for nostalgic entertainment!
-</div>
+        <div>Welcome to <strong>FuuRoo.com</strong> — Your free old internet web for nostalgic entertainment!</div>
         <div>
             Status: <strong id="top-user-status" style="color:#cc0000;">Guest (Not Logged In)</strong> |
             <a onclick="switchTab('auth')">My Account</a> |
@@ -511,7 +510,6 @@
             <strong id="breadcrumb-text">Member Login &amp; OAuth 2.0</strong>
         </div>
         <div>
-           
         </div>
     </div>
 
@@ -575,27 +573,68 @@
                 </div>
                 <div class="panel-inner">
                     <div id="auth-login-view" style="max-width: 460px; margin: 0 auto;">
-                        <p style="margin-bottom: 10px;">
-                            Sign in with your FuuRoo account or connect via <strong>Google OAuth 2.0</strong> to unlock Movies, Internet Radio, and Free Online Games.
-                        </p>
-
-                        <div class="form-row">
-                            <label>Username or Email:</label>
-                            <input type="text" id="login-user" value="player_one">
+                        <div class="inner-tabs" style="margin-bottom: 12px;">
+                            <button type="button" class="inner-tab active" id="auth-tab-signin" onclick="toggleAuthMode('signin')">Sign In</button>
+                            <button type="button" class="inner-tab" id="auth-tab-signup" onclick="toggleAuthMode('signup')">Sign Up (Create Account)</button>
                         </div>
 
-                        <div class="form-row">
-                            <label>Password:</label>
-                            <input type="password" id="login-pass" value="fuuroo1234">
+                        <!-- SIGN IN FORM -->
+                        <div id="signin-form-box">
+                            <p style="margin-bottom: 10px;">
+                                Sign in with your FuuRoo account or connect via <strong>Google OAuth 2.0</strong> to unlock Movies, Internet Radio, and Free Online Games.
+                            </p>
+
+                            <div class="form-row">
+                                <label>Username or Email:</label>
+                                <input type="text" id="login-user" placeholder="Enter your username or email">
+                            </div>
+
+                            <div class="form-row">
+                                <label>Password:</label>
+                                <input type="password" id="login-pass" placeholder="Enter your password" onkeydown="if(event.key==='Enter') handleLocalLogin()">
+                            </div>
+
+                            <div style="display:flex; gap:8px; margin-top:12px; flex-wrap:wrap;">
+                                <button type="button" class="btn-classic btn-blue" onclick="handleLocalLogin()">Sign In</button>
+                                <button type="button" class="btn-classic btn-green" onclick="toggleAuthMode('signup')">Sign Up</button>
+                                <a href="/login/google" class="btn-classic btn-red" onclick="demoOAuth(event)">Sign in with Google (OAuth 2.0)</a>
+                            </div>
                         </div>
 
-                        <div style="display:flex; gap:8px; margin-top:12px; flex-wrap:wrap;">
-                            <button class="btn-classic btn-blue" onclick="handleLocalLogin()">Sign In</button>
-                            <a href="/login/google" class="btn-classic btn-red" onclick="demoOAuth(event)">Sign in with Google (OAuth 2.0)</a>
+                        <!-- SIGN UP FORM -->
+                        <div id="signup-form-box" style="display:none;">
+                            <p style="margin-bottom: 10px;">
+                                Create a new <strong>FuuRoo.com</strong> member account to access Media &amp; Entertainment:
+                            </p>
+
+                            <div class="form-row">
+                                <label>Choose Username:</label>
+                                <input type="text" id="signup-user" placeholder="e.g. player_one">
+                            </div>
+
+                            <div class="form-row">
+                                <label>Email Address:</label>
+                                <input type="email" id="signup-email" placeholder="e.g. player@example.com">
+                            </div>
+
+                            <div class="form-row">
+                                <label>Create Password (min. 6 characters):</label>
+                                <input type="password" id="signup-pass" placeholder="Create a password">
+                            </div>
+
+                            <div class="form-row">
+                                <label>Confirm Password:</label>
+                                <input type="password" id="signup-confirm" placeholder="Re-enter your password" onkeydown="if(event.key==='Enter') handleLocalSignup()">
+                            </div>
+
+                            <div style="display:flex; gap:8px; margin-top:12px; flex-wrap:wrap;">
+                                <button type="button" class="btn-classic btn-green" onclick="handleLocalSignup()">Create Account (Sign Up)</button>
+                                <button type="button" class="btn-classic" onclick="toggleAuthMode('signin')">Back to Sign In</button>
+                            </div>
                         </div>
 
                         <div class="notice-box" id="auth-notice">
-                            <strong>Note:</strong> Guest mode active. Please sign in above to access Media &amp; Entertainment.
+                            <strong>Note:</strong> Guest mode active. Please Sign In or Sign Up above to access Media &amp; Entertainment.
                         </div>
                     </div>
 
@@ -690,7 +729,7 @@
 
     function switchTab(tab) {
         if (tab !== "auth" && !loggedIn) {
-            document.getElementById("auth-notice").innerHTML = "<strong style='color:#cc0000;'>Access Denied:</strong> Please Sign In or use Google OAuth first!";
+            document.getElementById("auth-notice").innerHTML = "<strong style='color:#cc0000;'>Access Denied:</strong> Please Sign In or Sign Up first!";
             return;
         }
         document.getElementById("sec-search").style.display = "none";
@@ -811,6 +850,17 @@
     }
 
     /* ================= AUTH ================= */
+    function toggleAuthMode(mode) {
+        const isSignup = mode === "signup";
+        document.getElementById("signin-form-box").style.display = isSignup ? "none" : "block";
+        document.getElementById("signup-form-box").style.display = isSignup ? "block" : "none";
+        document.getElementById("auth-tab-signin").classList.toggle("active", !isSignup);
+        document.getElementById("auth-tab-signup").classList.toggle("active", isSignup);
+        document.getElementById("auth-notice").innerHTML = isSignup
+            ? "<strong>New Member:</strong> Fill out all fields above and click <strong>Create Account (Sign Up)</strong>."
+            : "<strong>Note:</strong> Guest mode active. Please Sign In or Sign Up above to access Media &amp; Entertainment.";
+    }
+
     function finishLogin(user, method) {
         loggedIn = true;
         document.getElementById("top-user-status").innerText = `${user} (${method})`;
@@ -822,7 +872,14 @@
 
     async function handleLocalLogin() {
         const u = document.getElementById("login-user").value.trim();
-        const p = document.getElementById("login-pass").value.trim();
+        const p = document.getElementById("login-pass").value;
+        const notice = document.getElementById("auth-notice");
+
+        if (!u || !p) {
+            notice.innerHTML = "<strong style='color:#cc0000;'>Error:</strong> Please enter both username/email and password.";
+            return;
+        }
+
         try {
             const res = await fetch("/login/local", {
                 method: "POST",
@@ -830,9 +887,48 @@
                 body: JSON.stringify({ username: u, password: p })
             });
             const data = await res.json();
-            if (data.success) return finishLogin(u, "Local Account");
-        } catch (e) {}
-        if (u && p) finishLogin(u, "Local Account");
+            if (res.ok && data.success) {
+                document.getElementById("login-pass").value = "";
+                return finishLogin(data.user || u, data.method || "Local Account");
+            }
+            notice.innerHTML = `<strong style='color:#cc0000;'>Login Failed:</strong> ${data.error || "Invalid credentials."}`;
+        } catch (e) {
+            notice.innerHTML = "<strong style='color:#cc0000;'>Server Error:</strong> Could not reach Flask backend.";
+        }
+    }
+
+    async function handleLocalSignup() {
+        const username = document.getElementById("signup-user").value.trim();
+        const email = document.getElementById("signup-email").value.trim();
+        const password = document.getElementById("signup-pass").value;
+        const confirm = document.getElementById("signup-confirm").value;
+        const notice = document.getElementById("auth-notice");
+
+        if (!username || !email || !password || !confirm) {
+            notice.innerHTML = "<strong style='color:#cc0000;'>Error:</strong> Please fill out all Sign Up fields.";
+            return;
+        }
+        if (password !== confirm) {
+            notice.innerHTML = "<strong style='color:#cc0000;'>Error:</strong> Passwords do not match.";
+            return;
+        }
+
+        try {
+            const res = await fetch("/signup/local", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ username, email, password })
+            });
+            const data = await res.json();
+            if (res.ok && data.success) {
+                document.getElementById("signup-pass").value = "";
+                document.getElementById("signup-confirm").value = "";
+                return finishLogin(data.user || username, data.method || "Local Account");
+            }
+            notice.innerHTML = `<strong style='color:#cc0000;'>Sign Up Failed:</strong> ${data.error || "Could not register account."}`;
+        } catch (e) {
+            notice.innerHTML = "<strong style='color:#cc0000;'>Server Error:</strong> Could not reach Flask backend.";
+        }
     }
 
     function demoOAuth(e) {
@@ -851,6 +947,7 @@
         document.getElementById("top-user-status").style.color = "#cc0000";
         document.getElementById("auth-login-view").style.display = "block";
         document.getElementById("auth-logged-view").style.display = "none";
+        toggleAuthMode("signin");
         switchTab("auth");
     }
 
