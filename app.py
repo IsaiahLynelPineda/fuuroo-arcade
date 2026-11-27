@@ -42,6 +42,45 @@ def init_users_db():
 
 init_users_db()
 
+FEATURED_VIDEOS = [
+    {
+        "title": "The General (1926)",
+        "tag": "Comedy",
+        "embed": "https://archive.org/embed/TheGeneral1926",
+        "desc": "Buster Keaton silent comedy classic.",
+    },
+    {
+        "title": "Nosferatu (1922)",
+        "tag": "Horror",
+        "embed": "https://archive.org/embed/PhantasmagoriaTheater-Nosferatu1922909",
+        "desc": "Classic silent vampire horror film.",
+    },
+    {
+        "title": "Cops (1922)",
+        "tag": "Comedy",
+        "embed": "https://archive.org/embed/Cops1922",
+        "desc": "Buster Keaton silent comedy short.",
+    },
+    {
+        "title": "College (1927)",
+        "tag": "Comedy",
+        "embed": "https://archive.org/embed/College_201405",
+        "desc": "Buster Keaton silent college comedy.",
+    },
+    {
+        "title": "The Golem (1920)",
+        "tag": "Horror",
+        "embed": "https://archive.org/embed/TheGolem1920",
+        "desc": "Classic silent horror film.",
+    },
+    {
+        "title": "Battleship Potemkin (1925)",
+        "tag": "Drama",
+        "embed": "https://archive.org/embed/BattleshipPotemkin1925",
+        "desc": "Classic silent epic drama film.",
+    },
+]
+
 FEATURED_GAMES = {
     "ben10": {
         "id": "ben-10-savage-pursuit",
@@ -243,12 +282,16 @@ def logout():
 # ================= MODULE 3A: MEDIA & ENTERTAINMENT APIs =================
 @app.route("/api/media/videos")
 def get_videos():
+    query = request.args.get("q", "").strip().lower()
     url = "https://archive.org/advancedsearch.php"
     params = {
-        "q": "identifier:(TheGeneral1926 OR PhantasmagoriaTheater-Nosferatu1922909 OR Cops1922)",
+        "q": (
+            "identifier:(TheGeneral1926 OR PhantasmagoriaTheater-Nosferatu1922909 "
+            "OR Cops1922 OR College_201405 OR TheGolem1920 OR BattleshipPotemkin1925)"
+        ),
         "fl[]": ["identifier", "title", "year", "description"],
         "output": "json",
-        "rows": 3,
+        "rows": 6,
     }
     try:
         res = requests.get(url, params=params, timeout=8).json()
@@ -263,11 +306,20 @@ def get_videos():
             for d in docs
         ]
         if videos:
+            if query:
+                videos = [
+                    v for v in videos
+                    if query in v["title"].lower() or query in v["tag"].lower() or query in v["desc"].lower()
+                ]
             return jsonify({"videos": videos})
     except Exception:
         pass
 
-    return jsonify({"videos": []})
+    fallback = [
+        v for v in FEATURED_VIDEOS
+        if not query or query in v["title"].lower() or query in v["tag"].lower() or query in v["desc"].lower()
+    ]
+    return jsonify({"videos": fallback})
 
 
 @app.route("/api/media/games")

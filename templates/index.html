@@ -715,10 +715,13 @@
 <script>
     let loggedIn = false;
 
-    const VIDEOS = [
+    let VIDEOS = [
         { title: "The General (1926)", tag: "Comedy", embed: "https://archive.org/embed/TheGeneral1926", desc: "Buster Keaton silent comedy classic." },
         { title: "Nosferatu (1922)", tag: "Horror", embed: "https://archive.org/embed/PhantasmagoriaTheater-Nosferatu1922909", desc: "Classic silent vampire horror film." },
-        { title: "Cops (1922)", tag: "Comedy", embed: "https://archive.org/embed/Cops1922", desc: "Buster Keaton silent comedy short." }
+        { title: "Cops (1922)", tag: "Comedy", embed: "https://archive.org/embed/Cops1922", desc: "Buster Keaton silent comedy short." },
+        { title: "College (1927)", tag: "Comedy", embed: "https://archive.org/embed/College_201405", desc: "Buster Keaton silent college comedy." },
+        { title: "The Golem (1920)", tag: "Horror", embed: "https://archive.org/embed/TheGolem1920", desc: "Classic silent horror film." },
+        { title: "Battleship Potemkin (1925)", tag: "Drama", embed: "https://archive.org/embed/BattleshipPotemkin1925", desc: "Classic silent epic drama film." }
     ];
 
     const FEATURED_MUSIC_INDEX = [
@@ -968,8 +971,8 @@
         });
     }
 
-    function renderMedia() {
-        document.getElementById("video-grid").innerHTML = VIDEOS.map(v => {
+    function renderVideoCards(list) {
+        document.getElementById("video-grid").innerHTML = list.map(v => {
             const safeTitle = v.title.replace(/'/g, "\\'");
             return `
                 <div class="item-card">
@@ -983,6 +986,18 @@
                 </div>
             `;
         }).join("");
+    }
+
+    async function renderMedia() {
+        renderVideoCards(VIDEOS);
+        try {
+            const res = await fetch("/api/media/videos");
+            const data = await res.json();
+            if (data.videos && data.videos.length > 0) {
+                VIDEOS = data.videos;
+                renderVideoCards(VIDEOS);
+            }
+        } catch (e) {}
 
         loadGames();
     }
