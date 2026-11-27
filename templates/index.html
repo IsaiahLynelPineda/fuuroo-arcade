@@ -575,7 +575,7 @@
                     <div id="auth-login-view" style="max-width: 460px; margin: 0 auto;">
                         <div class="inner-tabs" style="margin-bottom: 12px;">
                             <button type="button" class="inner-tab active" id="auth-tab-signin" onclick="toggleAuthMode('signin')">Sign In</button>
-                            <button type="button" class="inner-tab" id="auth-tab-signup" onclick="toggleAuthMode('signup')">Sign Up (Create Account)</button>
+                            <button type="button" class="inner-tab" id="auth-tab-signup" style="display:none;" onclick="toggleAuthMode('signup')">Sign Up (Create Account)</button>
                         </div>
 
                         <!-- SIGN IN FORM -->
@@ -596,7 +596,7 @@
 
                             <div style="display:flex; gap:8px; margin-top:12px; flex-wrap:wrap;">
                                 <button type="button" class="btn-classic btn-blue" onclick="handleLocalLogin()">Sign In</button>
-                                <button type="button" class="btn-classic btn-green" onclick="toggleAuthMode('signup')">Sign Up</button>
+                                <button type="button" class="btn-classic btn-green" onclick="openSignupView()">Sign Up</button>
                                 <a href="/login/google" class="btn-classic btn-red" onclick="demoOAuth(event)">Sign in with Google (OAuth 2.0)</a>
                             </div>
                         </div>
@@ -634,7 +634,7 @@
                         </div>
 
                         <div class="notice-box" id="auth-notice">
-                            <strong>Note:</strong> Guest mode active. Please Sign In or Sign Up above to access Media &amp; Entertainment.
+                            <strong>Note:</strong> Guest mode active. Please Sign In or click <strong>Sign Up</strong> above to access Media &amp; Entertainment.
                         </div>
                     </div>
 
@@ -729,7 +729,7 @@
 
     function switchTab(tab) {
         if (tab !== "auth" && !loggedIn) {
-            document.getElementById("auth-notice").innerHTML = "<strong style='color:#cc0000;'>Access Denied:</strong> Please Sign In or Sign Up first!";
+            document.getElementById("auth-notice").innerHTML = "<strong style='color:#cc0000;'>Access Denied:</strong> Please Sign In or click <strong>Sign Up</strong> first!";
             return;
         }
         document.getElementById("sec-search").style.display = "none";
@@ -850,15 +850,24 @@
     }
 
     /* ================= AUTH ================= */
+    function openSignupView() {
+        document.getElementById("auth-tab-signup").style.display = "inline-block";
+        toggleAuthMode("signup");
+    }
+
     function toggleAuthMode(mode) {
         const isSignup = mode === "signup";
+        const signupTab = document.getElementById("auth-tab-signup");
+        if (!isSignup) {
+            signupTab.style.display = "none";
+        }
         document.getElementById("signin-form-box").style.display = isSignup ? "none" : "block";
         document.getElementById("signup-form-box").style.display = isSignup ? "block" : "none";
         document.getElementById("auth-tab-signin").classList.toggle("active", !isSignup);
-        document.getElementById("auth-tab-signup").classList.toggle("active", isSignup);
+        signupTab.classList.toggle("active", isSignup);
         document.getElementById("auth-notice").innerHTML = isSignup
             ? "<strong>New Member:</strong> Fill out all fields above and click <strong>Create Account (Sign Up)</strong>."
-            : "<strong>Note:</strong> Guest mode active. Please Sign In or Sign Up above to access Media &amp; Entertainment.";
+            : "<strong>Note:</strong> Guest mode active. Please Sign In or click <strong>Sign Up</strong> above to access Media &amp; Entertainment.";
     }
 
     function finishLogin(user, method) {
